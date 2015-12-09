@@ -3,14 +3,14 @@
 #include "MessageManager.h"
 #include "TcpAcceptor.h"
 #include "CmdQueue.h"
+#include "Sessions.h"
 using namespace std;
 
 class TcpServer : public Thread {
 public:
-	TcpServer() {
+	TcpServer()
+	: sessions_(2) {
 		stop_ = false;
-
-		sessions_.resize(1);
 	}
 	~TcpServer() {
 	}
@@ -23,12 +23,9 @@ public:
 		cmd_queue_.PutCmd(move(cmd));
 	}
 
-	void SetHandler_OnConnected(int32_t session_id);
-	void SetHandler_OnPacket(int32_t session_id, void *packet, int32_t size);
-	void SendTo(int32_t session_id, void *packet, int32_t size);
-
 private:
 	virtual void ThreadProc() {
+
 		TcpAcceptor acceptor(io_service_);
 		acceptor.SetHandler_OnAccepted(boost::bind(&TcpServer::OnAccepted, this, _1));
 		acceptor.Start();
@@ -38,49 +35,27 @@ private:
 
 			auto cmd = cmd_queue_.GetCmd();
 			if (cmd) {
-				auto session = GetSession(0);
+				auto session = sessions_.GetSession(0);
 				if (session)
 					session->Send(*cmd);
 			}
-			
-			//auto q = MessageManager::Get()->GetMessageQueue(1);
-			//if (q) {
-			//	for (const auto &msg : *q) {
-			//		if (msg) {
-			//			auto session = GetSession(0);
-			//			if (session)
-			//				session->Send(msg->message_params);
-			//		}
-			//	}
-			//}
-
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
 		cout << "TcpServer:ThreadProc End" << endl;
 	}
 
-
-	int32_t GetUnusedSessionId() {
-		return 0;
-	}
-	shared_ptr<TcpConnection> GetSession(int32_t session_id) {
-		if (session_id < 0 || session_id >= (int32_t)sessions_.size())
-			return nullptr;
-		else
-			return sessions_[session_id];
-	}
 	void OnAccepted(shared_ptr<TcpConnection> connection) {
-		int32_t session_id = GetUnusedSessionId();
+		int32_t session_id = sessions_.GetUnusedSessionId();
 		if (session_id == -1) {
 			//todo: send prompting message
 			connection->Close();
 		} else {
-			sessions_[session_id] = connection;
-			connection->SetHandler_OnPacket(boost::bind(&TcpServer::OnPacket, this, _1));
+			connection->SetHandler_OnPacket(boost::bind(&TcpServer::OnPacket, this, session_id, _1));
 			connection->Start();
+			sessions_.SetSession(session_id, connection);
 		}
 	}
-	void OnPacket(const string &s) {
+	void OnPacket(int32_t session_id, const string &s) {
 		cout << s << endl;
 		MessageManager::Get()->PutMessage(1, 2, &Actor::OnPacket, s);
 	}
@@ -88,6 +63,6 @@ private:
 private:
 	boost::asio::io_service io_service_;
 
-	vector<shared_ptr<TcpConnection>> sessions_;
 	CmdQueue cmd_queue_;
+	Sessions sessions_;
 };
