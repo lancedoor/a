@@ -41,6 +41,7 @@ private:
 			}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
+		sessions_.CloseAllSessions();
 		cout << "TcpServer:ThreadProc End" << endl;
 	}
 

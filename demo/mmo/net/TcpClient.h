@@ -27,6 +27,7 @@ private:
 			return;
 
 		conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1));
+		conn->SetHandler_OnClose(boost::bind(&TcpClient::OnClose, this, _1));
 		conn->Start();
 		while(!stop_) {
 			io_service_.poll();
@@ -45,10 +46,14 @@ private:
 			//}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
+		conn->Close();
 		cout << "TcpClient:ThreadProc End" << endl;
 	}
 	void OnPacket(const string &s) {
 		cout << s << endl;
+	}
+	void OnClose(int32_t reason) {
+		cout << "TcpClient::OnClose(" << reason << ")" << endl;
 	}
 
 private:

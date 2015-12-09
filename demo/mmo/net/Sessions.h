@@ -42,6 +42,16 @@ public:
 		unused_session_ids_.push_back(session_id);
 	}
 
+	void CloseAllSessions() {
+		for (int32_t i = 0; i < (int32_t)sessions_.size(); ++i) {
+			auto conn = sessions_[i];
+			if (conn) {
+				conn->Close();
+				conn = nullptr;
+				unused_session_ids_.push_back(i);
+			}
+		}
+	}
 
 private:
 	vector<shared_ptr<TcpConnection>> sessions_;
