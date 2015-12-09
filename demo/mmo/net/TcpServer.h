@@ -38,9 +38,14 @@ private:
 
 			auto cmd = cmd_queue_.GetCmd();
 			if (cmd) {
-				auto session = sessions_.GetSession(0);
-				if (session)
-					session->Send(*cmd);
+				size_t sep = cmd->find(':');
+				if (sep == string::npos) {
+					sessions_.SendToAllSessions(*cmd);
+				} else {
+					auto session = sessions_.GetSession(stoi(cmd->substr(0, sep)));
+					if (session)
+						session->Send(*cmd);
+				}
 			}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
