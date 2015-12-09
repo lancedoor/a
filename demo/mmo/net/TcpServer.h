@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include "Thread.h"
 #include "MessageManager.h"
 #include "TcpAcceptor.h"
@@ -44,7 +45,7 @@ private:
 				} else {
 					auto session = sessions_.GetSession(stoi(cmd->substr(0, sep)));
 					if (session)
-						session->Send(*cmd);
+						session->Send(cmd->substr(sep+1));
 				}
 			}
 			this_thread::sleep_for(chrono::milliseconds(1));

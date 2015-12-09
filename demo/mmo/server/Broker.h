@@ -3,16 +3,10 @@
 
 class Broker : public Actor {
 public:
-	Broker() {
-
+	Broker(int32_t receptionist_id)
+		: receptionist_id_(receptionist_id) {
 	}
-	static void OnPacket(shared_ptr<Actor> actor, const string &s) {
-		auto self = dynamic_pointer_cast<Broker>(actor);
-		if (!self)
-			return;
-
-		cout << "[ActorId = " << self->actor_id_ << "]Broker::OnPacket(" << s << ")" << endl;
-	}
+	static void OnPacket(shared_ptr<Actor> actor, const string &s);
 	static void OnClosed(shared_ptr<Actor> actor, int32_t reason) {
 		auto self = dynamic_pointer_cast<Broker>(actor);
 		if (!self)
@@ -20,4 +14,6 @@ public:
 
 		cout << "[ActorId = " << self->actor_id_ << "]Broker::OnClosed(" << reason << ")" << endl;
 	}
+private:
+	int32_t receptionist_id_;
 };

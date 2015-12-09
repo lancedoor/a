@@ -14,13 +14,15 @@
 
 int main()
 {
-	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>());
+	auto tcp_server = make_shared<MyTcpServer>();
+
+	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>(tcp_server));
+	tcp_server->SetReceptionistId(receptionist_id);
 
 	WorkerThread worker_thread;
 	worker_thread.Start();
 
-	MyTcpServer tcp_server(receptionist_id);
-	tcp_server.Start();
+	tcp_server->Start();
 	for (;;) {
 		string s;
 		cin >> s;
@@ -28,28 +30,10 @@ int main()
 		if (s == "exit")
 			break;
 
-		tcp_server.PutCmd(unique_ptr<string>(new string(s)));
-		//MessageManager::Get()->PutMessage(0, 1, 0, s);
+		tcp_server->PutCmd(unique_ptr<string>(new string(s)));
 	}
-	tcp_server.Stop();
+	tcp_server->Stop();
 	worker_thread.Stop();
-
-	//boost::asio::io_service io_service;
-
-	//TcpAcceptor acceptor(io_service);
-	//acceptor.Start();
-
-	//shared_ptr<TcpConnection> conn;
-	//for (;;) {
-	//	conn->Start();
-	//	//string s;
-	//	//conn->Recv(s);
-	//	//cout << "Client: " << s << endl;
-	//	conn->Send("Dismiss. Soldier.");
-	//	//conn->Close();
-	//}
-	//io_service.run();
-
     return 0;
 }
 
