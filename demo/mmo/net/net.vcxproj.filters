@@ -75,6 +75,9 @@
     <ClInclude Include="Sessions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WorkerThreadManager.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -84,6 +87,9 @@
       <Filter>Header Files\Actor</Filter>
     </ClCompile>
     <ClCompile Include="ActorManager.cpp">
+      <Filter>Header Files\Actor</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkerThreadManager.cpp">
       <Filter>Header Files\Actor</Filter>
     </ClCompile>
   </ItemGroup>

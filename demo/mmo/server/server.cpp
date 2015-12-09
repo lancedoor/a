@@ -9,6 +9,7 @@
 #include "../net/WorkerThread.h"
 #include "Receptionist.h"
 #include "MyTcpServer.h"
+#include "../net/WorkerThreadManager.h"
 
 #pragma comment(lib, "net.lib")
 
@@ -19,8 +20,7 @@ int main()
 	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>(tcp_server));
 	tcp_server->SetReceptionistId(receptionist_id);
 
-	WorkerThread worker_thread;
-	worker_thread.Start();
+	WorkerThreadManager::Get()->Start();
 
 	tcp_server->Start();
 	for (;;) {
@@ -33,7 +33,7 @@ int main()
 		tcp_server->PutCmd(unique_ptr<string>(new string(s)));
 	}
 	tcp_server->Stop();
-	worker_thread.Stop();
-    return 0;
+	WorkerThreadManager::Get()->Stop();
+	return 0;
 }
 
