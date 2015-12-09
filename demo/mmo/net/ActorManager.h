@@ -8,13 +8,17 @@ class ActorManager {
 	_DECLARE_SINGLETON(ActorManager)
 private:
 	ActorManager() {
-		actors_.push_back(nullptr);
-		actors_.push_back(nullptr);
-		actors_.push_back(make_shared<Actor>(3));
-		actors_.push_back(make_shared<Actor>(4));
-		actors_in_process_.resize(3);
 	}
 public:
+	int32_t AddActor(shared_ptr<Actor> actor) {
+		lock_guard<mutex> lg(mutex_);
+		int32_t actor_id = actors_.size();
+		actor->SetActorId(actor_id);
+		actors_.push_back(actor);
+		actors_in_process_.push_back(false);
+		return actor_id;
+	}
+
 	shared_ptr<Actor> StartActorProcess(int32_t actor_id) {
 		lock_guard<mutex> lg(mutex_);
 		if (actor_id < 0 || actor_id >= (int32_t) actors_.size())

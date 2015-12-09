@@ -7,15 +7,19 @@
 #include "../net/TcpServer.h"
 #include "../net/MessageManager.h"
 #include "../net/WorkerThread.h"
+#include "Receptionist.h"
+#include "MyTcpServer.h"
 
 #pragma comment(lib, "net.lib")
 
 int main()
 {
+	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>());
+
 	WorkerThread worker_thread;
 	worker_thread.Start();
 
-	TcpServer tcp_server;
+	MyTcpServer tcp_server(receptionist_id);
 	tcp_server.Start();
 	for (;;) {
 		string s;

@@ -4,20 +4,25 @@
 
 class Actor {
 public:
-	Actor(int32_t actor_id) {
+	Actor() {
+
+	}
+	virtual ~Actor() {
+
+	}
+	void SetActorId(int32_t actor_id) {
 		actor_id_ = actor_id;
 	}
 
 	void OnPacket(const string &packet) {
 		cout << "Actor::OnPacket : " << packet << endl;
 	}
-
 	template<typename Fn, typename... Params>
 	void PutMessage(int32_t receiver_id, Fn fn, Params... params) {
 		MessageManager::Get()->PutMessage(actor_id_, receiver_id, fn, params...);
 	}
 
-private:
+protected:
 	int32_t actor_id_;
 
 	//void PostMessage(int32_t actor_id, boost::function handler, boost::function callback);

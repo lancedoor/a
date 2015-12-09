@@ -28,26 +28,11 @@ public:
 		msg->fn = boost::bind(fn, _1, params...);
 		MessageManager::Get()->PutMessage(msg);
 	}
-
-	shared_ptr<MessageQueue> GetMessageQueue(int32_t receiver_id) {
-		shared_ptr<MessageQueue> ret;
-		lock_guard<mutex> lg(mutex_);
-		auto it = queues_.find(receiver_id);
-		if (it == queues_.end()) {
-			ret = nullptr;
-		} else {
-			ret = it->second;
-			queues_.erase(it);
-		}
-		return ret;
-	}
 	shared_ptr<MessageQueue> StartMessageQueueProcess() {
 		shared_ptr<MessageQueue> ret = nullptr;
 		lock_guard<mutex> lg(mutex_);
 		for (auto it = queues_.begin(); it != queues_.end(); ++it) {
 			if (processing_receivers_.find(it->first) != processing_receivers_.end())
-				continue;
-			if (it->first < 2)
 				continue;
 
 			ret = it->second;

@@ -22,7 +22,10 @@ public:
 	void PutCmd(unique_ptr<string> cmd) {
 		cmd_queue_.PutCmd(move(cmd));
 	}
-
+private:
+	virtual void OnNewSession(int32_t session_id) {}
+	virtual void OnSessionPacket(int32_t session_id, const string &s) {}
+	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {}
 private:
 	virtual void ThreadProc() {
 
@@ -55,15 +58,17 @@ private:
 			connection->SetHandler_OnClose(boost::bind(&TcpServer::OnClose, this, session_id, _1));
 			connection->Start();
 			sessions_.SetSession(session_id, connection);
+			OnNewSession(session_id);
 		}
 	}
 	void OnPacket(int32_t session_id, const string &s) {
-		cout << s << endl;
-		MessageManager::Get()->PutMessage(1, 2, &Actor::OnPacket, s);
+		//cout << s << endl;
+		OnSessionPacket(session_id, s);
 	}
 	void OnClose(int32_t session_id, int32_t reason) {
-		cout << "TcpServer::OnClose(" << session_id << ", " << reason << ")" << endl;
+		//cout << "TcpServer::OnClose(" << session_id << ", " << reason << ")" << endl;
 		sessions_.ReleaseSession(session_id);
+		OnSessionClosed(session_id, reason);
 	}
 
 private:

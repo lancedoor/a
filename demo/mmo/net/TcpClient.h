@@ -36,14 +36,6 @@ private:
 			if (cmd) {
 				conn->Send(*cmd);
 			}
-
-			//auto q = MessageManager::Get()->GetMessageQueue(1);
-			//if (q) {
-			//	for (const auto &msg : *q) {
-			//		if (msg)
-			//			conn->Send(msg->message_params);
-			//	}
-			//}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
 		conn->Close();
