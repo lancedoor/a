@@ -51,6 +51,7 @@ private:
 			connection->Close();
 		} else {
 			connection->SetHandler_OnPacket(boost::bind(&TcpServer::OnPacket, this, session_id, _1));
+			connection->SetHandler_OnClose(boost::bind(&TcpServer::OnClose, this, session_id, _1));
 			connection->Start();
 			sessions_.SetSession(session_id, connection);
 		}
@@ -58,6 +59,10 @@ private:
 	void OnPacket(int32_t session_id, const string &s) {
 		cout << s << endl;
 		MessageManager::Get()->PutMessage(1, 2, &Actor::OnPacket, s);
+	}
+	void OnClose(int32_t session_id, int32_t reason) {
+		cout << "TcpServer::OnClose(" << session_id << ", " << reason << ")" << endl;
+		sessions_.ReleaseSession(session_id);
 	}
 
 private:

@@ -35,6 +35,12 @@ public:
 		assert(sessions_[session_id] == nullptr);
 		sessions_[session_id] = connection;
 	}
+	void ReleaseSession(int32_t session_id) {
+		if (session_id < 0 || session_id >= (int32_t)sessions_.size())
+			return;
+		sessions_[session_id] = nullptr;
+		unused_session_ids_.push_back(session_id);
+	}
 
 
 private:

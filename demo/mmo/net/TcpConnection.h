@@ -9,8 +9,20 @@ class TcpConnection : public enable_shared_from_this<TcpConnection>
 	friend class TcpAcceptor;
 	friend class TcpConnector;
 public:
+	enum CloseReason {
+		CLOSEREASON_ACTIVE,
+		CLOSEREASON_PASSIVE,
+		CLOSEREASON_TIMEOUT,
+
+		_CLOSEREASON_MAX
+	};
+	enum {
+		RECV_BUFFER_SIZE = 1024
+	};
+public:
 	TcpConnection(boost::asio::io_service &io_service)
-		: socket_(io_service) {
+		: socket_(io_service)
+		, closed_(false) {
 	}
 	~TcpConnection() {
 
@@ -19,12 +31,18 @@ public:
 	void SetHandler_OnPacket(const boost::function<void(const string &s)> &fn) {
 		handler_on_packet_ = fn;
 	}
+	void SetHandler_OnClose(const boost::function<void(int32_t reason)> &fn) {
+		handler_on_close_ = fn;
+	}
 
 	void Start() {
 		WaitHeader();
 	}
 
 	void Send(const string &s) {
+		if (closed_)
+			return;
+
 		boost::system::error_code ignored_error;
 		uint32_t l = s.size();
 		boost::asio::write(socket_, boost::asio::buffer(&l, sizeof(l)), ignored_error);
@@ -32,8 +50,10 @@ public:
 	}
 
 	void Close() {
-		socket_.shutdown(tcp::socket::shutdown_both);
-		socket_.close();
+		if (closed_)
+			return;
+
+		InternalClose(CLOSEREASON_ACTIVE);
 	}
 private:
 	void WaitHeader() {
@@ -46,26 +66,49 @@ private:
 	}
 	void OnRecvHeader(const boost::system::error_code& error, size_t bytes_transferred) {
 		if (error || bytes_transferred == 0) {
-			Close();
+			InternalClose(CLOSEREASON_PASSIVE);
 			return;
 		}
-		//todo: async_recv(body)
-		char s[1024];
-		boost::asio::read(socket_, boost::asio::buffer(s, header_));
-		s[header_] = 0;
+		if (header_ > RECV_BUFFER_SIZE) {
+			InternalClose(CLOSEREASON_ACTIVE); //todo: more detail
+			return;
+		}
+
+		boost::asio::async_read(socket_,
+			boost::asio::buffer(recv_buffer_, header_),
+			boost::bind(&TcpConnection::OnRecvBody, shared_from_this(),
+				boost::asio::placeholders::error,
+				boost::asio::placeholders::bytes_transferred)
+			);
+	}
+	void OnRecvBody(const boost::system::error_code& error, size_t bytes_transferred) {
+		if (error || bytes_transferred == 0) {
+			InternalClose(CLOSEREASON_PASSIVE);
+			return;
+		}
 		if (handler_on_packet_) {
-			handler_on_packet_(s);
+			assert(bytes_transferred < RECV_BUFFER_SIZE);//todo:temp for stirng receiving.
+			recv_buffer_[bytes_transferred] = 0; //todo:temp for stirng receiving.
+			handler_on_packet_((const char*)recv_buffer_);//todo:temp for stirng receiving.
 		}
 
 		WaitHeader();
 	}
-	void OnRecvBody() {
+	void InternalClose(int32_t reason) {
+		socket_.shutdown(tcp::socket::shutdown_both);
+		socket_.close();
 
+		closed_ = true;
+		if (handler_on_close_)
+			handler_on_close_(reason);
 	}
 
 private:
 	tcp::socket socket_;
 	uint32_t header_;
+	int8_t recv_buffer_[RECV_BUFFER_SIZE];
 	boost::function<void(const string &s)> handler_on_packet_;
+	boost::function<void(int32_t reason)> handler_on_close_;
+	bool closed_;
 };
 
