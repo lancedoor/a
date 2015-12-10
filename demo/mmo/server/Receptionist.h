@@ -19,6 +19,8 @@ public:
 		int32_t broker_id = ActorManager::Get()->AddActor(make_shared<Broker>(self->actor_id_));
 		self->session_to_broker_[session_id] = broker_id;
 		self->broker_to_session_[broker_id] = session_id;
+
+		self->PutMessage(broker_id, Broker::OnStart);
 	}
 	static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, const string &s) {
 		auto self = dynamic_pointer_cast<Receptionist>(actor);

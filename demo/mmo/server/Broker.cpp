@@ -3,6 +3,15 @@
 #include <regex>
 #include "Receptionist.h"
 
+void Broker::OnStart(shared_ptr<Actor> actor)
+{
+	auto self = dynamic_pointer_cast<Broker>(actor);
+	if (!self)
+		return;
+
+	self->SendToClient("welcome");
+}
+
 void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
 {
 	auto self = dynamic_pointer_cast<Broker>(actor);
@@ -21,4 +30,9 @@ void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
 			MessageManager::Get()->PutMessage(self->actor_id_, self->receptionist_id_, Receptionist::SendToSession, self->actor_id_, stoi(sm[1]), string(sm[2]));
 		}
 	}
+}
+
+void Broker::SendToClient(const string &s)
+{
+	PutMessage(receptionist_id_, Receptionist::SendToSession, actor_id_, actor_id_, s);
 }
