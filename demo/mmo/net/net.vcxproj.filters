@@ -78,6 +78,9 @@
     <ClInclude Include="WorkerThreadManager.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
+    <ClInclude Include="CmdQ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

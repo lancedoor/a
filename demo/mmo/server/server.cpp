@@ -30,7 +30,8 @@ int main()
 		if (s == "exit")
 			break;
 
-		tcp_server->PutCmd(unique_ptr<string>(new string(s)));
+    tcp_server->BroadcastPacket(s);
+		//tcp_server->PutCmd(unique_ptr<string>(new string(s)));
 	}
 	tcp_server->Stop();
 	WorkerThreadManager::Get()->Stop();

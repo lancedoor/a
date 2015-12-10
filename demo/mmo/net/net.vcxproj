@@ -141,6 +141,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorManager.h" />
     <ClInclude Include="all.h" />
+    <ClInclude Include="CmdQ.h" />
     <ClInclude Include="CmdQueue.h" />
     <ClInclude Include="ForceInclude.h" />
     <ClInclude Include="MessageManager.h" />

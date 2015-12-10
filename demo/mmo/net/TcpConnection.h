@@ -48,6 +48,14 @@ public:
 		boost::asio::write(socket_, boost::asio::buffer(&l, sizeof(l)), ignored_error);
 		boost::asio::write(socket_, boost::asio::buffer(s), ignored_error);
 	}
+  void Send(shared_ptr<uint8_t> data, int32_t size) {
+    if (closed_)
+      return;
+
+    boost::system::error_code ignored_error;
+    boost::asio::write(socket_, boost::asio::buffer(&size, sizeof(size)), ignored_error);
+    boost::asio::write(socket_, boost::asio::buffer(data.get(), size), ignored_error);
+  }
 
 	void Close() {
 		if (closed_)

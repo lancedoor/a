@@ -8,6 +8,11 @@
 using namespace std;
 
 class TcpServer : public Thread {
+  enum ECmdId {
+    SEND,
+    BROADCAST
+  };
+
 public:
 	TcpServer()
 	: sessions_(2) {
@@ -20,9 +25,22 @@ public:
 		io_service_.stop();
 		join();
 	}
-	void PutCmd(unique_ptr<string> cmd) {
-		cmd_queue_.PutCmd(move(cmd));
-	}
+  void SendPacket(int32_t session_id, shared_ptr<uint8_t> &ptr, int32_t size) {
+    PutCmd(make_shared<Cmd>(ECmdId::SEND, session_id, ptr, size));
+  }
+  void BroadcastPacket(shared_ptr<uint8_t> &ptr, int32_t size) {
+    PutCmd(make_shared<Cmd>(ECmdId::BROADCAST, 0, ptr, size));
+  }
+  void SendPacket(int32_t session_id, const string &s) { //temp
+    auto p = new uint8_t[s.size()];
+    memcpy(p, s.data(), s.size());
+    SendPacket(session_id, shared_ptr<uint8_t>(p), s.size());
+  }
+  void BroadcastPacket(const string &s) { //temp
+    auto p = new uint8_t[s.size()];
+    memcpy(p, s.data(), s.size());
+    BroadcastPacket(shared_ptr<uint8_t>(p), s.size());
+  }
 private:
 	virtual void OnNewSession(int32_t session_id) {}
 	virtual void OnSessionPacket(int32_t session_id, const string &s) {}
@@ -37,16 +55,20 @@ private:
 		while (!stop_) {
 			io_service_.poll();
 
-			auto cmd = cmd_queue_.GetCmd();
+      auto cmd = GetCmd();
 			if (cmd) {
-				size_t sep = cmd->find(':');
-				if (sep == string::npos) {
-					sessions_.SendToAllSessions(*cmd);
-				} else {
-					auto session = sessions_.GetSession(stoi(cmd->substr(0, sep)));
-					if (session)
-						session->Send(cmd->substr(sep+1));
-				}
+        switch (cmd->id) {
+        case ECmdId::SEND: {
+          auto session = sessions_.GetSession(cmd->i_param);
+          if (session)
+            session->Send(cmd->p_param, cmd->p_size);
+          break;
+        }
+        case ECmdId::BROADCAST: {
+          sessions_.Broadcast(cmd->p_param, cmd->p_size);
+          break;
+        }
+        }
 			}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}
@@ -79,7 +101,5 @@ private:
 
 private:
 	boost::asio::io_service io_service_;
-
-	CmdQueue cmd_queue_;
 	Sessions sessions_;
 };

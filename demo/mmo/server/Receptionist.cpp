@@ -9,11 +9,11 @@ void Receptionist::SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_i
 		return;
 
 	auto it = self->broker_to_session_.find(receiver_actor_id);
-	if (it != self->broker_to_session_.end())
-		if (sender_actor_id == receiver_actor_id)
-			self->tcp_server_->PutCmd(unique_ptr<string>(new string(to_string(it->second) + ":" + s)));
+  if (it != self->broker_to_session_.end())
+    if (sender_actor_id == receiver_actor_id)
+      self->tcp_server_->SendPacket(it->second, s);
 		else
-			self->tcp_server_->PutCmd(unique_ptr<string>(new string(to_string(it->second) + ":" + to_string(sender_actor_id) + ":" + s)));
+      self->tcp_server_->SendPacket(it->second, to_string(sender_actor_id) + ":" + s);
 }
 
 void Receptionist::SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_actor_id, const string &s)
@@ -26,7 +26,7 @@ void Receptionist::SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_act
 		if (item.first == sender_actor_id)
 			continue;
 
-		self->tcp_server_->PutCmd(unique_ptr<string>(new string(to_string(item.second) + ":" + to_string(sender_actor_id) + ":" + s)));
+    self->tcp_server_->SendPacket(item.second, to_string(sender_actor_id) + ":" + s);
 	}
 
 
