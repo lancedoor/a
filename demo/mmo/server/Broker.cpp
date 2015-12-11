@@ -18,6 +18,8 @@ void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
 	if (!self)
 		return;
 
+
+
 	cout << "[ActorId = " << self->actor_id_ << "]Broker::OnPacket(" << s << ")" << endl;
 	smatch sm;
 	regex_match(s, sm, regex("(\\*|\\d+):(.*)"));
@@ -30,6 +32,16 @@ void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
 			MessageManager::Get()->PutMessage(self->actor_id_, self->receptionist_id_, Receptionist::SendToSession, self->actor_id_, stoi(sm[1]), string(sm[2]));
 		}
 	}
+}
+
+void Broker::OnPacket_CS_Login(shared_ptr<Actor> actor, shared_ptr<CS_Login> packet)
+{
+  cout << "Broker::OnPacket<CS_Login>(user=" << packet->user << ")" << endl;
+}
+
+void Broker::OnPacket_CS_Chat(shared_ptr<Actor> actor, shared_ptr<CS_Chat> packet)
+{
+  cout << "Broker::OnPacket<CS_Chat>(user=" << packet->text << ")" << endl;
 }
 
 void Broker::SendToClient(const string &s)

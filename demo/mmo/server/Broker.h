@@ -1,5 +1,6 @@
 #pragma once
 #include "../net/Actor.h"
+#include "../net/Packet.h"
 
 class Broker : public Actor {
 public:
@@ -8,7 +9,9 @@ public:
 	}
 	static void OnStart(shared_ptr<Actor> actor);
 	static void OnPacket(shared_ptr<Actor> actor, const string &s);
-	static void OnClosed(shared_ptr<Actor> actor, int32_t reason) {
+  static void OnPacket_CS_Login(shared_ptr<Actor> actor, shared_ptr<CS_Login> packet);
+  static void OnPacket_CS_Chat(shared_ptr<Actor> actor, shared_ptr<CS_Chat> packet);
+  static void OnClosed(shared_ptr<Actor> actor, int32_t reason) {
 		auto self = dynamic_pointer_cast<Broker>(actor);
 		if (!self)
 			return;

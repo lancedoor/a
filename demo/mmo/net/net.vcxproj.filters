@@ -95,5 +95,8 @@
     <ClCompile Include="WorkerThreadManager.cpp">
       <Filter>Header Files\Actor</Filter>
     </ClCompile>
+    <ClCompile Include="Packet.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

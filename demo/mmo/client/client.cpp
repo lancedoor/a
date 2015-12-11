@@ -7,6 +7,7 @@
 #include "../net/TcpClient.h"
 #include "../net/MessageManager.h"
 #include <boost/archive/binary_oarchive.hpp>
+#include "../net/Packet.h"
 
 #pragma comment(lib, "net.lib")
 
@@ -28,7 +29,11 @@ int main()
 	//}
 	//io_service.run();
 
-	for (;;) {
+  auto packet = make_shared<CS_Login>();
+  packet->user = "guest";
+  tcp_client.SendPacket(CS_LOGIN, packet);
+
+  for (;;) {
 		string s;
 		cin >> s;
 		//cout << s << endl;
@@ -36,7 +41,12 @@ int main()
 		if (s == "exit")
 			break;
 
-		tcp_client.PutCmd(unique_ptr<string>(new string(s)));
+    auto packet = make_shared<CS_Chat>();
+    packet->text = s;
+    tcp_client.SendPacket(CS_CHAT, packet);
+
+
+		//tcp_client.PutCmd(unique_ptr<string>(new string(s)));
 		//MessageManager::Get()->PutMessage(0, 1, 0, s);
 	}
 	tcp_client.Stop();

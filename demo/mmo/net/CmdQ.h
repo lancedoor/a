@@ -9,6 +9,9 @@ struct Cmd {
   shared_ptr<uint8_t> p_param;
   int32_t p_size;
 
+  Cmd() {
+    Cmd(0, 0, nullptr, 0);
+  }
   Cmd(int32_t _id, int32_t _i_param, shared_ptr<uint8_t> _p_param, int32_t _p_size) {
     id = _id;
     i_param = _i_param;
