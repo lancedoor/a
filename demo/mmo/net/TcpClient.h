@@ -26,7 +26,7 @@ private:
 		if (!conn)
 			return;
 
-		conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1));
+		conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1, _2));
 		conn->SetHandler_OnClose(boost::bind(&TcpClient::OnClose, this, _1));
 		conn->Start();
 		while(!stop_) {
@@ -41,7 +41,8 @@ private:
 		conn->Close();
 		cout << "TcpClient:ThreadProc End" << endl;
 	}
-	void OnPacket(const string &s) {
+	void OnPacket(uint8_t *ptr, uint32_t size) {
+    string s((const char*)ptr, size);
 		cout << s << endl;
 	}
 	void OnClose(int32_t reason) {

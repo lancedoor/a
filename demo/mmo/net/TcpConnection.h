@@ -27,8 +27,11 @@ public:
 	~TcpConnection() {
 
 	}
+  tcp::socket &GetSocket() {
+    return socket_;
+  }
 
-	void SetHandler_OnPacket(const boost::function<void(const string &s)> &fn) {
+	void SetHandler_OnPacket(const boost::function<void(uint8_t *ptr, uint32_t size)> &fn) {
 		handler_on_packet_ = fn;
 	}
 	void SetHandler_OnClose(const boost::function<void(int32_t reason)> &fn) {
@@ -95,9 +98,10 @@ private:
 			return;
 		}
 		if (handler_on_packet_) {
-			assert(bytes_transferred < RECV_BUFFER_SIZE);//todo:temp for stirng receiving.
-			recv_buffer_[bytes_transferred] = 0; //todo:temp for stirng receiving.
-			handler_on_packet_((const char*)recv_buffer_);//todo:temp for stirng receiving.
+      handler_on_packet_(recv_buffer_, bytes_transferred);
+			//assert(bytes_transferred < RECV_BUFFER_SIZE);//todo:temp for stirng receiving.
+			//recv_buffer_[bytes_transferred] = 0; //todo:temp for stirng receiving.
+			//handler_on_packet_((const char*)recv_buffer_);//todo:temp for stirng receiving.
 		}
 
 		WaitHeader();
@@ -114,8 +118,8 @@ private:
 private:
 	tcp::socket socket_;
 	uint32_t header_;
-	int8_t recv_buffer_[RECV_BUFFER_SIZE];
-	boost::function<void(const string &s)> handler_on_packet_;
+	uint8_t recv_buffer_[RECV_BUFFER_SIZE];
+	boost::function<void(uint8_t *ptr, uint32_t size)> handler_on_packet_;
 	boost::function<void(int32_t reason)> handler_on_close_;
 	bool closed_;
 };

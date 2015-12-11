@@ -16,8 +16,9 @@ private:
 		if (receptionist_id_ != -1)
 			MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnNewSession, session_id);
 	}
-	virtual void OnSessionPacket(int32_t session_id, const string &s) {
-		if (receptionist_id_ != -1)
+	virtual void OnSessionPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {
+    string s((const char*)ptr, size);
+    if (receptionist_id_ != -1)
 			MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnSessionPacket, session_id, s);
 	}
 	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {
