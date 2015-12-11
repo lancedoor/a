@@ -6,8 +6,6 @@
 using boost::asio::ip::tcp;
 class TcpConnection : public enable_shared_from_this<TcpConnection>
 {
-	friend class TcpAcceptor;
-	friend class TcpConnector;
 public:
 	enum CloseReason {
 		CLOSEREASON_ACTIVE,
@@ -27,7 +25,7 @@ public:
 	~TcpConnection() {
 
 	}
-  tcp::socket &GetSocket() {
+  tcp::socket &Socket() {
     return socket_;
   }
 
@@ -99,9 +97,6 @@ private:
 		}
 		if (handler_on_packet_) {
       handler_on_packet_(recv_buffer_, bytes_transferred);
-			//assert(bytes_transferred < RECV_BUFFER_SIZE);//todo:temp for stirng receiving.
-			//recv_buffer_[bytes_transferred] = 0; //todo:temp for stirng receiving.
-			//handler_on_packet_((const char*)recv_buffer_);//todo:temp for stirng receiving.
 		}
 
 		WaitHeader();

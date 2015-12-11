@@ -21,7 +21,7 @@ public:
 private:
 	void WaitConnection() {
 		shared_ptr<TcpConnection> tcp_connection = make_shared<TcpConnection>(acceptor_.get_io_service());
-		acceptor_.async_accept(tcp_connection->socket_, boost::bind(&TcpAcceptor::OnAccept, this, tcp_connection, boost::asio::placeholders::error));
+		acceptor_.async_accept(tcp_connection->Socket(), boost::bind(&TcpAcceptor::OnAccept, this, tcp_connection, boost::asio::placeholders::error));
 	}
 	void OnAccept(shared_ptr<TcpConnection> tcp_connection, const boost::system::error_code &error) {
 		if (!error)

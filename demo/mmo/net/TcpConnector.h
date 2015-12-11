@@ -13,7 +13,7 @@ public:
 
 		shared_ptr<TcpConnection> conn = make_shared<TcpConnection>(io_service);
 		boost::system::error_code error_code;
-		boost::asio::connect(conn->socket_, endpoint_iterator, error_code);
+		boost::asio::connect(conn->Socket(), endpoint_iterator, error_code);
 
 		return error_code ? nullptr : conn;
 	}
