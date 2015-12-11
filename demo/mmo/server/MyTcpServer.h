@@ -2,6 +2,8 @@
 #include "../net/TcpServer.h"
 #include "../net/MessageManager.h"
 #include "../net/Packet.h"
+#include "../net/PacketType.h"
+
 
 class MyTcpServer : public TcpServer {
 public:
@@ -18,21 +20,20 @@ private:
 			MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnNewSession, session_id);
 	}
 	virtual void OnSessionPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {
-    int32_t packet_type = *((int32_t*)ptr);
+    if (receptionist_id_ == -1)
+      return;
 
-    shared_ptr<Packet> packet;
-    switch (packet_type) {
-    case CS_LOGIN: packet = make_shared<CS_Login>(); break;
-    case CS_CHAT: packet = make_shared<CS_Chat>(); break;
-    }
-    
+    PacketType packet_type;
+    auto packet_type_size = packet_type.SerializeFrom(ptr, size);
+    if (packet_type_size == 0)
+      return;
+
+    auto packet = packet_type.CreatePacket();
     if (!packet)
       return;
 
-    packet->SerializeFromArray(ptr + 4, size - 4);
-
-    if (receptionist_id_ != -1)
-			MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnSessionPacket1, session_id, packet_type, packet);
+    packet->SerializeFromArray(ptr + packet_type_size, size - packet_type_size);
+    MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnSessionPacket1, session_id, packet_type, packet);
 	}
 	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {
 		if (receptionist_id_ != -1)

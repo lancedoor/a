@@ -2,6 +2,7 @@
 #include "../net/Actor.h"
 #include "../net/ActorManager.h"
 #include "Broker.h"
+#include "../net/PacketType.h"
 
 class TcpServer;
 class Receptionist : public Actor {
@@ -35,7 +36,7 @@ public:
 
     self->PutMessage(it->second, Broker::OnPacket, s);
 	}
-  static void OnSessionPacket1(shared_ptr<Actor> actor, int32_t session_id, int32_t packet_type, shared_ptr<Packet> packet) {
+  static void OnSessionPacket1(shared_ptr<Actor> actor, int32_t session_id, PacketType packet_type, shared_ptr<Packet> packet) {
     auto self = dynamic_pointer_cast<Receptionist>(actor);
     if (!self)
       return;
@@ -44,7 +45,7 @@ public:
     if (it == self->session_to_broker_.end())
       return;
 
-    switch (packet_type) {
+    switch (packet_type.type_) {
     case CS_LOGIN: {
       self->PutMessage(it->second, Broker::OnPacket_CS_Login, dynamic_pointer_cast<CS_Login>(packet));
       break;

@@ -31,7 +31,7 @@ int main()
 
   auto packet = make_shared<CS_Login>();
   packet->user = "guest";
-  tcp_client.SendPacket(CS_LOGIN, packet);
+  tcp_client.SendPacket(packet);
 
   for (;;) {
 		string s;
@@ -43,7 +43,7 @@ int main()
 
     auto packet = make_shared<CS_Chat>();
     packet->text = s;
-    tcp_client.SendPacket(CS_CHAT, packet);
+    tcp_client.SendPacket(packet);
 
 
 		//tcp_client.PutCmd(unique_ptr<string>(new string(s)));

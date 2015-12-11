@@ -15,9 +15,9 @@ public:
 		io_service_.stop();
 		join();
 	}
-  void SendPacket(int32_t packet_id, shared_ptr<Packet> packet) {
+  void SendPacket(shared_ptr<Packet> packet) {
     auto cmd = make_shared<Cmd>();
-    GetPacketBlock(packet_id, packet, cmd->p_param, cmd->p_size);
+    GetPacketBlock(packet, cmd->p_param, cmd->p_size);
     PutCmd(cmd);
   }
 private:

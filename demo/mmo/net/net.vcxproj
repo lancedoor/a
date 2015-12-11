@@ -146,6 +146,7 @@
     <ClInclude Include="ForceInclude.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketType.h" />
     <ClInclude Include="Sessions.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="stdafx.h" />
