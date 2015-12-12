@@ -33,7 +33,7 @@ private:
       return;
 
     packet->SerializeFromArray(ptr + packet_type_size, size - packet_type_size);
-    MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnSessionPacket1, session_id, packet_type, packet);
+    MessageManager::Get()->PutMessage(-2, receptionist_id_, Receptionist::OnSessionPacket, session_id, packet);
 	}
 	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {
 		if (receptionist_id_ != -1)

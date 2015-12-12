@@ -6,6 +6,9 @@ public:
   PacketType() {
     type_ = -1;
   }
+  PacketType(shared_ptr<Packet> packet) {
+    FromPacket(packet);
+  }
   bool IsInited() {
     return type_ != -1;
   }
@@ -42,6 +45,16 @@ public:
     }
     return nullptr;
   }
+  bool operator== (const PacketType &rhs) const {
+    return type_ == rhs.type_;
+  }
 //private:
   int32_t type_;
+};
+
+template<>
+struct hash<PacketType> {
+  size_t operator ()(const PacketType &packet_type) const {
+    return packet_type.type_;
+  }
 };

@@ -23,20 +23,20 @@ public:
 
 		self->PutMessage(broker_id, Broker::OnStart);
 	}
-	static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, uint8_t *ptr, uint32_t size) {
-		auto self = dynamic_pointer_cast<Receptionist>(actor);
-		if (!self)
-			return;
+	//static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, uint8_t *ptr, uint32_t size) {
+	//	auto self = dynamic_pointer_cast<Receptionist>(actor);
+	//	if (!self)
+	//		return;
 
-    string s((const char*)ptr, size);
-    cout << "[ActorId = " << self->actor_id_ << "]Receptionist::OnSessionPacket(" << session_id << ", " << s << ")" << endl;
-		auto it = self->session_to_broker_.find(session_id);
-    if (it == self->session_to_broker_.end())
-      return;
+ //   string s((const char*)ptr, size);
+ //   cout << "[ActorId = " << self->actor_id_ << "]Receptionist::OnSessionPacket(" << session_id << ", " << s << ")" << endl;
+	//	auto it = self->session_to_broker_.find(session_id);
+ //   if (it == self->session_to_broker_.end())
+ //     return;
 
-    self->PutMessage(it->second, Broker::OnPacket, s);
-	}
-  static void OnSessionPacket1(shared_ptr<Actor> actor, int32_t session_id, PacketType packet_type, shared_ptr<Packet> packet) {
+ //   self->PutMessage(it->second, Broker::OnPacket, s);
+	//}
+  static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, shared_ptr<Packet> packet) {
     auto self = dynamic_pointer_cast<Receptionist>(actor);
     if (!self)
       return;
@@ -45,17 +45,19 @@ public:
     if (it == self->session_to_broker_.end())
       return;
 
-    switch (packet_type.type_) {
-    case CS_LOGIN: {
-      self->PutMessage(it->second, Broker::OnPacket_CS_Login, dynamic_pointer_cast<CS_Login>(packet));
-      break;
-    }
-    case CS_CHAT: {
-      self->PutMessage(it->second, Broker::OnPacket_CS_Chat, dynamic_pointer_cast<CS_Chat>(packet));
-      break;
-    }
+    self->PutMessage(it->second, Broker::OnPacket, packet);
 
-    }
+    //switch (PacketType(packet).type_) {
+    //case CS_LOGIN: {
+    //  self->PutMessage(it->second, Broker::OnPacket_CS_Login, dynamic_pointer_cast<CS_Login>(packet));
+    //  break;
+    //}
+    //case CS_CHAT: {
+    //  self->PutMessage(it->second, Broker::OnPacket_CS_Chat, dynamic_pointer_cast<CS_Chat>(packet));
+    //  break;
+    //}
+
+    //}
 
 
     
