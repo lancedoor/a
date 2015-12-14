@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include <iostream>
 #include "../net/all.h"
-#include "../net/TcpClient.h"
+#include "MyTcpClient.h"
 #include "../net/MessageManager.h"
 #include <boost/archive/binary_oarchive.hpp>
 #include "../common/Packets.pb.h"
@@ -15,8 +15,8 @@
 
 int main()
 {
-	TcpClient tcp_client;
-	tcp_client.Start();
+	auto tcp_client = make_shared<MyTcpClient>();
+	tcp_client->Start();
 
 	//boost::asio::io_service io_service;
 
@@ -33,7 +33,7 @@ int main()
 
   auto packet = make_shared<Packet::CS_Login>();
   packet->set_user("guest");
-  tcp_client.SendPacket(packet);
+  tcp_client->SendPacket(packet);
 
   for (;;) {
 		string s;
@@ -45,13 +45,13 @@ int main()
 
     auto packet = make_shared<Packet::CS_Say>();
     packet->set_text(s);
-    tcp_client.SendPacket(packet);
+    tcp_client->SendPacket(packet);
 
 
 		//tcp_client.PutCmd(unique_ptr<string>(new string(s)));
 		//MessageManager::Get()->PutMessage(0, 1, 0, s);
 	}
-	tcp_client.Stop();
+	tcp_client->Stop();
     return 0;
 }
 

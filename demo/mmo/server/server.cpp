@@ -32,7 +32,10 @@ int main()
 		if (s == "exit")
 			break;
 
-    tcp_server->BroadcastPacket(s);
+    auto packet = make_shared<Packet::SC_SomeoneSay>();
+    packet->set_name("System");
+    packet->set_text(s);
+    tcp_server->BroadcastPacket(packet);
 		//tcp_server->PutCmd(unique_ptr<string>(new string(s)));
 	}
 	tcp_server->Stop();

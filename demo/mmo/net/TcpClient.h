@@ -1,13 +1,14 @@
 #pragma once
-#include "Thread.h"
+#include "NetThread.h"
 #include "MessageManager.h"
-#include "Packet.h"
+#include "ClientConnection.h"
+#include "TcpConnector.h"
 using namespace std;
 
-class TcpClient : public Thread {
-  enum ECmdId {
-    SEND
-  };
+class TcpClient : public NetThread, public enable_shared_from_this<TcpClient> {
+  //enum ECmdId {
+  //  SEND
+  //};
 public:
 	TcpClient() {
 	}
@@ -19,28 +20,31 @@ public:
 		join();
 	}
   void SendPacket(shared_ptr<::google::protobuf::Message> packet) {
-    auto cmd = make_shared<Cmd>(ECmdId::SEND, 0, nullptr, 0);
-    GetPacketBlock(packet, cmd->p_param, cmd->p_size);
-    PutCmd(cmd);
+    auto msg = make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::SEND, 0, packet);
+    msg_q_.PushBack(msg);
   }
+  virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {}
+
 private:
 	virtual void ThreadProc() {
-		auto conn = TcpConnector::Connect(io_service_);
-		if (!conn)
+		auto sock = TcpConnector::Connect(io_service_);
+		if (!sock)
 			return;
 
-		conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1, _2));
+    auto conn = make_shared<ClientConnection>(shared_from_this(), sock);
+
+		//conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1, _2));
 		conn->SetHandler_OnClose(boost::bind(&TcpClient::OnClose, this, _1));
 		conn->Start();
 		while(!stop_) {
 			io_service_.poll();
 
-			auto cmd = GetCmd();
-			if (cmd) {
-        switch (cmd->id)
+			auto msg = msg_q_.PopFront();
+			if (msg) {
+        switch (msg->cmd_id)
         {
-        case ECmdId::SEND:
-          conn->Send(cmd->p_param, cmd->p_size);
+        case NetThreadMsg::ECmdId::SEND:
+          conn->SendPacket(msg->packet);
         default:
           break;
         }

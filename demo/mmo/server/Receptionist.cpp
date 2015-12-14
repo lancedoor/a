@@ -2,7 +2,7 @@
 #include "Receptionist.h"
 #include "../net/TcpServer.h"
 
-void Receptionist::SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_id, int32_t receiver_actor_id, const string &s)
+void Receptionist::SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_id, int32_t receiver_actor_id, shared_ptr<::google::protobuf::Message> packet)
 {
 	auto self = dynamic_pointer_cast<Receptionist>(actor);
 	if (!self)
@@ -11,12 +11,12 @@ void Receptionist::SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_i
 	auto it = self->broker_to_session_.find(receiver_actor_id);
   if (it != self->broker_to_session_.end())
     if (sender_actor_id == receiver_actor_id)
-      self->tcp_server_->SendPacket(it->second, s);
+      self->tcp_server_->SendPacket(it->second, packet);
 		else
-      self->tcp_server_->SendPacket(it->second, to_string(sender_actor_id) + ":" + s);
+      self->tcp_server_->SendPacket(it->second, packet);
 }
 
-void Receptionist::SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_actor_id, const string &s)
+void Receptionist::SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_actor_id, shared_ptr<::google::protobuf::Message> packet)
 {
 	auto self = dynamic_pointer_cast<Receptionist>(actor);
 	if (!self)
@@ -26,7 +26,7 @@ void Receptionist::SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_act
 		if (item.first == sender_actor_id)
 			continue;
 
-    self->tcp_server_->SendPacket(item.second, to_string(sender_actor_id) + ":" + s);
+    self->tcp_server_->SendPacket(item.second, packet);
 	}
 
 

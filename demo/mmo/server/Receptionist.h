@@ -76,8 +76,8 @@ public:
 			self->session_to_broker_.erase(it);
 		}
 	}
-	static void SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_id, int32_t receiver_actor_id, const string &s);
-	static void SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_actor_id, const string &s);
+	static void SendToSession(shared_ptr<Actor> actor, int32_t sender_actor_id, int32_t receiver_actor_id, shared_ptr<::google::protobuf::Message> packet);
+	static void SendToAllSessions(shared_ptr<Actor> actor, int32_t sender_actor_id, shared_ptr<::google::protobuf::Message> packet);
 private:
 	unordered_map<int32_t, int32_t> session_to_broker_;
 	unordered_map<int32_t, int32_t> broker_to_session_;

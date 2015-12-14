@@ -9,7 +9,10 @@ void Broker::OnStart(shared_ptr<Actor> actor)
 	if (!self)
 		return;
 
-	self->SendToClient("welcome");
+  auto packet = make_shared<Packet::SC_LoginResult>();
+  packet->set_name("");
+  packet->set_welcome("welcome");
+	self->SendToClient(packet);
 }
 
 //void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
@@ -44,7 +47,7 @@ void Broker::OnPacket_CS_Chat(shared_ptr<Actor> actor, shared_ptr<Packet::CS_Say
   cout << "Broker::OnPacket<CS_Chat>(user=" << packet->text() << ")" << endl;
 }
 
-void Broker::SendToClient(const string &s)
+void Broker::SendToClient(shared_ptr<::google::protobuf::Message> packet)
 {
-	PutMessage(receptionist_id_, Receptionist::SendToSession, actor_id_, actor_id_, s);
+	PutMessage(receptionist_id_, Receptionist::SendToSession, actor_id_, actor_id_, packet);
 }

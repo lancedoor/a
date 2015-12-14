@@ -144,10 +144,13 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="ActorManager.h" />
     <ClInclude Include="all.h" />
+    <ClInclude Include="ClientConnection.h" />
     <ClInclude Include="CmdQ.h" />
     <ClInclude Include="CmdQueue.h" />
     <ClInclude Include="ForceInclude.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="MutexPtrDeque.h" />
+    <ClInclude Include="NetThread.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketType_.h" />
     <ClInclude Include="PacketType.h" />
@@ -155,6 +158,7 @@
     <ClInclude Include="ServerConnection.h" />
     <ClInclude Include="Sessions.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="NetThreadMsg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TcpAcceptor.h" />
@@ -169,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ActorManager.cpp" />
+    <ClCompile Include="ClientConnection.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="Packet_.cpp" />

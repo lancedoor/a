@@ -99,6 +99,18 @@
     <ClInclude Include="ServerConnection.h">
       <Filter>Header Files\net</Filter>
     </ClInclude>
+    <ClInclude Include="NetThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MutexPtrDeque.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetThreadMsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientConnection.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -120,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="ServerConnection.cpp">
+      <Filter>Header Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientConnection.cpp">
       <Filter>Header Files\net</Filter>
     </ClCompile>
   </ItemGroup>

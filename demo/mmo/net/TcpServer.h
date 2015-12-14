@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
-#include "Thread.h"
+#include "NetThread.h"
 #include "MessageManager.h"
 #include "TcpAcceptor.h"
 #include "CmdQueue.h"
@@ -9,7 +9,7 @@ using namespace std;
 
 #include "ServerConnection.h"
 
-class TcpServer : public Thread, public enable_shared_from_this<TcpServer> {
+class TcpServer : public NetThread, public enable_shared_from_this<TcpServer> {
   enum ECmdId {
     SEND,
     BROADCAST
@@ -32,6 +32,12 @@ public:
   }
   void BroadcastPacket(shared_ptr<uint8_t> &ptr, int32_t size) {
     PutCmd(make_shared<Cmd>(ECmdId::BROADCAST, 0, ptr, size));
+  }
+  void SendPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
+    msg_q_.PushBack(make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::SEND, session_id, packet));
+  }
+  void BroadcastPacket(shared_ptr<::google::protobuf::Message> packet) {
+    msg_q_.PushBack(make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::BROADCAST, 0, packet));
   }
   void SendPacket(int32_t session_id, const string &s) { //temp
     auto p = new uint8_t[s.size()];
@@ -59,17 +65,18 @@ private:
 		while (!stop_) {
 			io_service_.poll();
 
-      auto cmd = GetCmd();
-			if (cmd) {
-        switch (cmd->id) {
-        case ECmdId::SEND: {
-          auto session = sessions_.GetSession(cmd->i_param);
+      //auto cmd = GetCmd();
+      auto msg = msg_q_.PopFront();
+			if (msg) {
+        switch (msg->cmd_id) {
+        case NetThreadMsg::ECmdId::SEND: {
+          auto session = sessions_.GetSession(msg->session_id);
           if (session)
-            session->Send(cmd->p_param, cmd->p_size);
+            session->SendPacket(msg->packet);
           break;
         }
-        case ECmdId::BROADCAST: {
-          sessions_.Broadcast(cmd->p_param, cmd->p_size);
+        case NetThreadMsg::ECmdId::BROADCAST: {
+          sessions_.Broadcast(msg->packet);
           break;
         }
         }
@@ -109,5 +116,5 @@ private:
 
 private:
 	boost::asio::io_service io_service_;
-	Sessions sessions_;
+	Sessions<ServerConnection> sessions_;
 };

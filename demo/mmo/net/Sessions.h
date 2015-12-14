@@ -3,6 +3,7 @@
 #include <deque>
 #include "TcpConnection.h"
 
+template<typename ConnectionType>
 class Sessions {
 public:
 	Sessions(int32_t max_sessions) {
@@ -23,13 +24,13 @@ public:
 		}
 		return ret;
 	}
-	shared_ptr<TcpConnection> GetSession(int32_t session_id) {
+	shared_ptr<ConnectionType> GetSession(int32_t session_id) {
 		if (session_id < 0 || session_id >= (int32_t)sessions_.size())
 			return nullptr;
 		else
 			return sessions_[session_id];
 	}
-	void SetSession(int32_t session_id, shared_ptr<TcpConnection> connection) {
+	void SetSession(int32_t session_id, shared_ptr<ConnectionType> connection) {
 		if (session_id < 0 || session_id >= (int32_t)sessions_.size())
 			return;
 		assert(sessions_[session_id] == nullptr);
@@ -68,8 +69,16 @@ public:
       }
     }
   }
+  void Broadcast(shared_ptr<::google::protobuf::Message> packet) {
+    for (int32_t i = 0; i < (int32_t)sessions_.size(); ++i) {
+      auto conn = sessions_[i];
+      if (conn) {
+        conn->SendPacket(packet);
+      }
+    }
+  }
 
 private:
-	vector<shared_ptr<TcpConnection>> sessions_;
+	vector<shared_ptr<ConnectionType>> sessions_;
 	deque<int32_t> unused_session_ids_;
 };

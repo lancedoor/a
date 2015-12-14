@@ -49,7 +49,7 @@ public:
     }
   }
 private:
-	void SendToClient(const string &s);
+	void SendToClient(shared_ptr<::google::protobuf::Message> packet);
 private:
 	int32_t receptionist_id_;
   unordered_map<PacketType, boost::function<void(shared_ptr<::google::protobuf::Message>)>> packet_handlers_;
