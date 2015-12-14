@@ -1,60 +1,59 @@
 #pragma once
 #include "Packet.h"
+#include "google/protobuf/message.h"
 
 class PacketType {
 public:
   PacketType() {
-    type_ = -1;
   }
-  PacketType(shared_ptr<Packet> packet) {
-    FromPacket(packet);
+  PacketType(shared_ptr<::google::protobuf::Message> packet) {
+    type_name_ = packet->GetTypeName();
   }
-  bool IsInited() {
-    return type_ != -1;
+  bool operator== (const PacketType &rhs) const {
+    return type_name_ == rhs.type_name_;
   }
+
   uint32_t ByteSize() {
-    return 4;
+    return sizeof(uint32_t) + type_name_.size();
   }
   bool SerializeTo(uint8_t* ptr, uint32_t size) {
-    if (!IsInited())
-      return false;
     if (size < ByteSize())
       return false;
 
-    *((int32_t*)ptr) = type_;
+    *((uint32_t*)ptr) = type_name_.size();
+    memcpy(ptr + sizeof(uint32_t), type_name_.data(), type_name_.size());
     return true;
   }
   uint32_t SerializeFrom(const uint8_t* ptr, uint32_t size) {
-    if (size < 4)
+    if (size < sizeof(uint32_t))
       return 0;
 
-    type_ = *((int32_t*)ptr);
-    return 4;
+    uint32_t len = *((uint32_t*)ptr);
+    if (size < sizeof(uint32_t) + len)
+      return 0;
+
+    type_name_ = string((const char *)ptr + sizeof(uint32_t), len);
+
+    return sizeof(uint32_t) + len;
   }
 
-  void FromPacket(shared_ptr<Packet> packet) {
-    if (typeid(*packet.get()) == typeid(CS_Login))
-      type_ = 0;
-    else if (typeid(*packet.get()) == typeid(CS_Chat))
-      type_ = 1;
-  }
-  shared_ptr<Packet> CreatePacket() {
-    switch (type_) {
-    case 0: return make_shared<CS_Login>();
-    case 1: return make_shared<CS_Chat>();
-    }
-    return nullptr;
-  }
-  bool operator== (const PacketType &rhs) const {
-    return type_ == rhs.type_;
+  shared_ptr<::google::protobuf::Message> CreatePacket() {
+    auto d = ::google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(type_name_);
+    if (!d)
+      return nullptr;
+    auto t = ::google::protobuf::MessageFactory::generated_factory()->GetPrototype(d);
+    if (!t)
+      return nullptr;
+    return shared_ptr<::google::protobuf::Message>(t->New());
   }
 //private:
-  int32_t type_;
+  string type_name_;
 };
 
 template<>
 struct hash<PacketType> {
   size_t operator ()(const PacketType &packet_type) const {
-    return packet_type.type_;
+    hash<string> h;
+    return h(packet_type.type_name_);
   }
 };

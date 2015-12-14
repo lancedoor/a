@@ -12,6 +12,8 @@
 #include "../net/WorkerThreadManager.h"
 
 #pragma comment(lib, "net.lib")
+#pragma comment(lib, "common.lib")
+#pragma comment(lib, "libprotobuf.lib")
 
 int main()
 {

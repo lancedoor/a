@@ -7,9 +7,11 @@
 #include "../net/TcpClient.h"
 #include "../net/MessageManager.h"
 #include <boost/archive/binary_oarchive.hpp>
-#include "../net/Packet.h"
+#include "../common/Packets.pb.h"
 
 #pragma comment(lib, "net.lib")
+#pragma comment(lib, "common.lib")
+#pragma comment(lib, "libprotobuf.lib")
 
 int main()
 {
@@ -29,8 +31,8 @@ int main()
 	//}
 	//io_service.run();
 
-  auto packet = make_shared<CS_Login>();
-  packet->user = "guest";
+  auto packet = make_shared<Packet::CS_Login>();
+  packet->set_user("guest");
   tcp_client.SendPacket(packet);
 
   for (;;) {
@@ -41,8 +43,8 @@ int main()
 		if (s == "exit")
 			break;
 
-    auto packet = make_shared<CS_Chat>();
-    packet->text = s;
+    auto packet = make_shared<Packet::CS_Say>();
+    packet->set_text(s);
     tcp_client.SendPacket(packet);
 
 

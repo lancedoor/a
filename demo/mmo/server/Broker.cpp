@@ -34,14 +34,14 @@ void Broker::OnStart(shared_ptr<Actor> actor)
 //	}
 //}
 
-void Broker::OnPacket_CS_Login(shared_ptr<Actor> actor, shared_ptr<CS_Login> packet)
+void Broker::OnPacket_CS_Login(shared_ptr<Actor> actor, shared_ptr<Packet::CS_Login> packet)
 {
-  cout << "Broker::OnPacket<CS_Login>(user=" << packet->user << ")" << endl;
+  cout << "Broker::OnPacket<CS_Login>(user=" << packet->user() << ")" << endl;
 }
 
-void Broker::OnPacket_CS_Chat(shared_ptr<Actor> actor, shared_ptr<CS_Chat> packet)
+void Broker::OnPacket_CS_Chat(shared_ptr<Actor> actor, shared_ptr<Packet::CS_Say> packet)
 {
-  cout << "Broker::OnPacket<CS_Chat>(user=" << packet->text << ")" << endl;
+  cout << "Broker::OnPacket<CS_Chat>(user=" << packet->text() << ")" << endl;
 }
 
 void Broker::SendToClient(const string &s)

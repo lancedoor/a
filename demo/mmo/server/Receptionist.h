@@ -36,7 +36,7 @@ public:
 
  //   self->PutMessage(it->second, Broker::OnPacket, s);
 	//}
-  static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, shared_ptr<Packet> packet) {
+  static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
     auto self = dynamic_pointer_cast<Receptionist>(actor);
     if (!self)
       return;

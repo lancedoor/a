@@ -1,0 +1,28 @@
+package Packet;
+
+message CS_Login {
+  optional string user = 1;
+}
+
+message SC_LoginResult {
+  optional string name = 1;
+  optional string welcome = 2;
+}
+
+message CS_Say {
+  optional string text = 1;
+}
+message SC_SomeoneSay {
+  optional string name = 1;
+  optional string text = 2;
+}
+
+message CS_PrivateSay {
+  optional string name = 1;
+  optional string text = 2;
+}
+
+message SC_SomeonePrivateSay {
+  optional string name = 1;
+  optional string text = 2;
+}

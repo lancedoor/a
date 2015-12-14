@@ -5,6 +5,9 @@
 using namespace std;
 
 class TcpClient : public Thread {
+  enum ECmdId {
+    SEND
+  };
 public:
 	TcpClient() {
 	}
@@ -15,8 +18,8 @@ public:
 		io_service_.stop();
 		join();
 	}
-  void SendPacket(shared_ptr<Packet> packet) {
-    auto cmd = make_shared<Cmd>();
+  void SendPacket(shared_ptr<::google::protobuf::Message> packet) {
+    auto cmd = make_shared<Cmd>(ECmdId::SEND, 0, nullptr, 0);
     GetPacketBlock(packet, cmd->p_param, cmd->p_size);
     PutCmd(cmd);
   }
@@ -34,11 +37,13 @@ private:
 
 			auto cmd = GetCmd();
 			if (cmd) {
-    //    auto p = shared_ptr<uint8_t>(new uint8_t[cmd->p_size + 4]);
-    //    (*(int32_t*)p.get()) = 0;
-    //    memcpy(p.get() + 4, cmd->p_param.get(), cmd->p_size);
-				//conn->Send(p, cmd->p_size + 4);
-        conn->Send(cmd->p_param, cmd->p_size);
+        switch (cmd->id)
+        {
+        case ECmdId::SEND:
+          conn->Send(cmd->p_param, cmd->p_size);
+        default:
+          break;
+        }
 			}
 			this_thread::sleep_for(chrono::milliseconds(1));
 		}

@@ -81,7 +81,13 @@
     <ClInclude Include="CmdQ.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PacketType_.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PacketType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Packet_.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -99,6 +105,9 @@
       <Filter>Header Files\Actor</Filter>
     </ClCompile>
     <ClCompile Include="Packet.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Packet_.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
