@@ -152,6 +152,7 @@
     <ClInclude Include="PacketType_.h" />
     <ClInclude Include="PacketType.h" />
     <ClInclude Include="Packet_.h" />
+    <ClInclude Include="ServerConnection.h" />
     <ClInclude Include="Sessions.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="stdafx.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="TcpClient.h" />
     <ClInclude Include="TcpConnection.h" />
     <ClInclude Include="TcpConnector.h" />
+    <ClInclude Include="TcpPacketConnection.h" />
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="WorkerThread.h" />
@@ -170,6 +172,7 @@
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="Packet_.cpp" />
+    <ClCompile Include="ServerConnection.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

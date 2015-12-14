@@ -69,7 +69,7 @@ public:
 		InternalClose(CLOSEREASON_ACTIVE);
 	}
 protected:
-  void OnRecv(uint8_t* ptr, uint32_t size){}
+  virtual void OnRecv(uint8_t* ptr, uint32_t size){}
 private:
 	void WaitHeader() {
 		boost::asio::async_read(*socket_,

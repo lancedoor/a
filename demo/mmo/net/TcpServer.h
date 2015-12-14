@@ -7,7 +7,9 @@
 #include "Sessions.h"
 using namespace std;
 
-class TcpServer : public Thread {
+#include "ServerConnection.h"
+
+class TcpServer : public Thread, public enable_shared_from_this<TcpServer> {
   enum ECmdId {
     SEND,
     BROADCAST
@@ -41,9 +43,11 @@ public:
     memcpy(p, s.data(), s.size());
     BroadcastPacket(shared_ptr<uint8_t>(p), s.size());
   }
+public:
+  virtual void OnSessionPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {}
 private:
 	virtual void OnNewSession(int32_t session_id) {}
-	virtual void OnSessionPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {}
+	//virtual void OnSessionPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {}
 	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {}
 private:
 	virtual void ThreadProc() {
@@ -78,23 +82,25 @@ private:
 
 	//void OnAccepted(shared_ptr<TcpConnection> connection) {
   void OnAccepted(shared_ptr<tcp::socket> sock) {
-    auto connection = make_shared<TcpConnection>(sock);
+    auto connection = make_shared<ServerConnection>(shared_from_this(), sock);
+    
 
 		int32_t session_id = sessions_.GetUnusedSessionId();
 		if (session_id == -1) {
 			//todo: send prompting message
 			connection->Close();
 		} else {
-			connection->SetHandler_OnPacket(boost::bind(&TcpServer::OnPacket, this, session_id, _1, _2));
+      connection->SetSessionId(session_id);
+			//connection->SetHandler_OnPacket(boost::bind(&TcpServer::OnPacket, this, session_id, _1, _2));
 			connection->SetHandler_OnClose(boost::bind(&TcpServer::OnClose, this, session_id, _1));
 			connection->Start();
 			sessions_.SetSession(session_id, connection);
 			OnNewSession(session_id);
 		}
 	}
-	void OnPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {
-		OnSessionPacket(session_id, ptr, size);
-	}
+	//void OnPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {
+	//	OnSessionPacket(session_id, ptr, size);
+	//}
 	void OnClose(int32_t session_id, int32_t reason) {
 		//cout << "TcpServer::OnClose(" << session_id << ", " << reason << ")" << endl;
 		sessions_.ReleaseSession(session_id);
