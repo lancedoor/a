@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>

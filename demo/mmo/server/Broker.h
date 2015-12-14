@@ -1,6 +1,5 @@
 #pragma once
 #include "../net/Actor.h"
-#include "../net/Packet.h"
 #include "../net/PacketType.h"
 #include "../common/Packets.pb.h"
 

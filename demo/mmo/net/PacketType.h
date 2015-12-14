@@ -1,5 +1,4 @@
 #pragma once
-#include "Packet.h"
 #include "google/protobuf/message.h"
 
 class PacketType {

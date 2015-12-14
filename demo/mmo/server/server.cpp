@@ -3,13 +3,10 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include "../net/all.h"
-#include "../net/TcpServer.h"
 #include "../net/MessageManager.h"
-#include "../net/WorkerThread.h"
+#include "../net/WorkerThreadManager.h"
 #include "Receptionist.h"
 #include "MyTcpServer.h"
-#include "../net/WorkerThreadManager.h"
 
 #pragma comment(lib, "net.lib")
 #pragma comment(lib, "common.lib")
@@ -39,7 +36,6 @@ int main()
     packet->set_name("System");
     packet->set_text(s);
     tcp_server->BroadcastPacket(packet);
-		//tcp_server->PutCmd(unique_ptr<string>(new string(s)));
 	}
 	tcp_server->Stop();
 	WorkerThreadManager::Get()->Stop();

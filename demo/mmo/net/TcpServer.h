@@ -3,7 +3,6 @@
 #include "NetThread.h"
 #include "MessageManager.h"
 #include "TcpAcceptor.h"
-#include "CmdQueue.h"
 #include "Sessions.h"
 using namespace std;
 
@@ -27,33 +26,16 @@ public:
 		io_service_.stop();
 		join();
 	}
-  void SendPacket(int32_t session_id, shared_ptr<uint8_t> &ptr, int32_t size) {
-    PutCmd(make_shared<Cmd>(ECmdId::SEND, session_id, ptr, size));
-  }
-  void BroadcastPacket(shared_ptr<uint8_t> &ptr, int32_t size) {
-    PutCmd(make_shared<Cmd>(ECmdId::BROADCAST, 0, ptr, size));
-  }
   void SendPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
     msg_q_.PushBack(make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::SEND, session_id, packet));
   }
   void BroadcastPacket(shared_ptr<::google::protobuf::Message> packet) {
     msg_q_.PushBack(make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::BROADCAST, 0, packet));
   }
-  void SendPacket(int32_t session_id, const string &s) { //temp
-    auto p = new uint8_t[s.size()];
-    memcpy(p, s.data(), s.size());
-    SendPacket(session_id, shared_ptr<uint8_t>(p), s.size());
-  }
-  void BroadcastPacket(const string &s) { //temp
-    auto p = new uint8_t[s.size()];
-    memcpy(p, s.data(), s.size());
-    BroadcastPacket(shared_ptr<uint8_t>(p), s.size());
-  }
 public:
   virtual void OnSessionPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {}
 private:
 	virtual void OnNewSession(int32_t session_id) {}
-	//virtual void OnSessionPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {}
 	virtual void OnSessionClosed(int32_t session_id, int32_t reason) {}
 private:
 	virtual void ThreadProc() {
@@ -65,7 +47,6 @@ private:
 		while (!stop_) {
 			io_service_.poll();
 
-      //auto cmd = GetCmd();
       auto msg = msg_q_.PopFront();
 			if (msg) {
         switch (msg->cmd_id) {
@@ -105,9 +86,6 @@ private:
 			OnNewSession(session_id);
 		}
 	}
-	//void OnPacket(int32_t session_id, uint8_t *ptr, uint32_t size) {
-	//	OnSessionPacket(session_id, ptr, size);
-	//}
 	void OnClose(int32_t session_id, int32_t reason) {
 		//cout << "TcpServer::OnClose(" << session_id << ", " << reason << ")" << endl;
 		sessions_.ReleaseSession(session_id);
