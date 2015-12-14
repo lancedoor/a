@@ -76,7 +76,10 @@ private:
 		cout << "TcpServer:ThreadProc End" << endl;
 	}
 
-	void OnAccepted(shared_ptr<TcpConnection> connection) {
+	//void OnAccepted(shared_ptr<TcpConnection> connection) {
+  void OnAccepted(shared_ptr<tcp::socket> sock) {
+    auto connection = make_shared<TcpConnection>(sock);
+
 		int32_t session_id = sessions_.GetUnusedSessionId();
 		if (session_id == -1) {
 			//todo: send prompting message

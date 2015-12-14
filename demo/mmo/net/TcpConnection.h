@@ -18,15 +18,19 @@ public:
 		RECV_BUFFER_SIZE = 1024
 	};
 public:
-	TcpConnection(boost::asio::io_service &io_service)
-		: socket_(io_service)
-		, closed_(false) {
-	}
+	//TcpConnection(boost::asio::io_service &io_service)
+	//	: closed_(false) {
+ //   socket_ = make_shared<tcp::socket>(io_service);
+	//}
+  TcpConnection(shared_ptr<tcp::socket> _socket)
+    : socket_(_socket)
+    , closed_(false) {
+  }
 	~TcpConnection() {
 
 	}
   tcp::socket &Socket() {
-    return socket_;
+    return *socket_;
   }
 
 	void SetHandler_OnPacket(const boost::function<void(uint8_t *ptr, uint32_t size)> &fn) {
@@ -46,16 +50,16 @@ public:
 
 		boost::system::error_code ignored_error;
 		uint32_t l = s.size();
-		boost::asio::write(socket_, boost::asio::buffer(&l, sizeof(l)), ignored_error);
-		boost::asio::write(socket_, boost::asio::buffer(s), ignored_error);
+		boost::asio::write(*socket_, boost::asio::buffer(&l, sizeof(l)), ignored_error);
+		boost::asio::write(*socket_, boost::asio::buffer(s), ignored_error);
 	}
   void Send(shared_ptr<uint8_t> data, int32_t size) {
     if (closed_)
       return;
 
     boost::system::error_code ignored_error;
-    boost::asio::write(socket_, boost::asio::buffer(&size, sizeof(size)), ignored_error);
-    boost::asio::write(socket_, boost::asio::buffer(data.get(), size), ignored_error);
+    boost::asio::write(*socket_, boost::asio::buffer(&size, sizeof(size)), ignored_error);
+    boost::asio::write(*socket_, boost::asio::buffer(data.get(), size), ignored_error);
   }
 
 	void Close() {
@@ -64,9 +68,11 @@ public:
 
 		InternalClose(CLOSEREASON_ACTIVE);
 	}
+protected:
+  void OnRecv(uint8_t* ptr, uint32_t size){}
 private:
 	void WaitHeader() {
-		boost::asio::async_read(socket_,
+		boost::asio::async_read(*socket_,
 			boost::asio::buffer(&header_, sizeof(header_)),
 			boost::bind(&TcpConnection::OnRecvHeader, shared_from_this(),
 				boost::asio::placeholders::error,
@@ -83,7 +89,7 @@ private:
 			return;
 		}
 
-		boost::asio::async_read(socket_,
+		boost::asio::async_read(*socket_,
 			boost::asio::buffer(recv_buffer_, header_),
 			boost::bind(&TcpConnection::OnRecvBody, shared_from_this(),
 				boost::asio::placeholders::error,
@@ -95,6 +101,7 @@ private:
 			InternalClose(CLOSEREASON_PASSIVE);
 			return;
 		}
+    OnRecv(recv_buffer_, bytes_transferred);
 		if (handler_on_packet_) {
       handler_on_packet_(recv_buffer_, bytes_transferred);
 		}
@@ -102,8 +109,8 @@ private:
 		WaitHeader();
 	}
 	void InternalClose(int32_t reason) {
-		socket_.shutdown(tcp::socket::shutdown_both);
-		socket_.close();
+		socket_->shutdown(tcp::socket::shutdown_both);
+		socket_->close();
 
 		closed_ = true;
 		if (handler_on_close_)
@@ -111,7 +118,8 @@ private:
 	}
 
 private:
-	tcp::socket socket_;
+	//tcp::socket socket_;
+  shared_ptr<tcp::socket> socket_;
 	uint32_t header_;
 	uint8_t recv_buffer_[RECV_BUFFER_SIZE];
 	boost::function<void(uint8_t *ptr, uint32_t size)> handler_on_packet_;

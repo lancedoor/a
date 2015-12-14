@@ -11,11 +11,14 @@ public:
 		tcp::resolver::query query("localhost", "55555");
 		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
-		shared_ptr<TcpConnection> conn = make_shared<TcpConnection>(io_service);
+    auto sock = make_shared<tcp::socket>(io_service);
 		boost::system::error_code error_code;
-		boost::asio::connect(conn->Socket(), endpoint_iterator, error_code);
+		boost::asio::connect(*sock, endpoint_iterator, error_code);
+    if (error_code)
+      return nullptr;
 
-		return error_code ? nullptr : conn;
+    return make_shared<TcpConnection>(sock);
+
 	}
 };
 
