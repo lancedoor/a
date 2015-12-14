@@ -26,8 +26,11 @@ int main()
 
 	tcp_server->Start();
 	for (;;) {
-		string s;
-		cin >> s;
+    char c[256];
+    cin.getline(c, 256);
+		string s(c);
+		//cin >> s;
+
 
 		if (s == "exit")
 			break;

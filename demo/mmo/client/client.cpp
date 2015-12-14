@@ -36,9 +36,10 @@ int main()
   tcp_client->SendPacket(packet);
 
   for (;;) {
-		string s;
-		cin >> s;
-		//cout << s << endl;
+    char c[256];
+    cin.getline(c, 256);
+		string s(c);
+		//cin >> s;
 
 		if (s == "exit")
 			break;
