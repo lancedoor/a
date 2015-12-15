@@ -9,11 +9,6 @@ using namespace std;
 #include "ServerConnection.h"
 
 class TcpServer : public NetThread, public enable_shared_from_this<TcpServer> {
-  enum ECmdId {
-    SEND,
-    BROADCAST
-  };
-
 public:
 	TcpServer()
 	: sessions_(2) {
@@ -40,9 +35,9 @@ private:
 private:
 	virtual void ThreadProc() {
 
-		TcpAcceptor acceptor(io_service_);
-		acceptor.SetHandler_OnAccepted(boost::bind(&TcpServer::OnAccepted, this, _1));
-		acceptor.Start();
+    auto acceptor = make_shared<TcpAcceptor>(io_service_);
+		acceptor->SetHandler_OnAccepted(boost::bind(&TcpServer::OnAccepted, this, _1));
+		acceptor->Start();
 
 		while (!stop_) {
 			io_service_.poll();

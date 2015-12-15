@@ -3,7 +3,7 @@
 #include "TcpConnection.h"
 
 using boost::asio::ip::tcp;
-class TcpAcceptor {
+class TcpAcceptor : public enable_shared_from_this<TcpAcceptor> {
 public:
 	TcpAcceptor(boost::asio::io_service &io_service)
 	: acceptor_(io_service, tcp::endpoint(tcp::v4(), 55555)) {
@@ -24,7 +24,7 @@ private:
 		//shared_ptr<TcpConnection> tcp_connection = make_shared<TcpConnection>(acceptor_.get_io_service());
 		//acceptor_.async_accept(tcp_connection->Socket(), boost::bind(&TcpAcceptor::OnAccept, this, tcp_connection, boost::asio::placeholders::error));
     auto sock = make_shared<tcp::socket>(acceptor_.get_io_service());
-    acceptor_.async_accept(*sock, boost::bind(&TcpAcceptor::AcceptHandler, this, sock, boost::asio::placeholders::error));
+    acceptor_.async_accept(*sock, boost::bind(&TcpAcceptor::AcceptHandler, shared_from_this(), sock, boost::asio::placeholders::error));
   }
 	//void AcceptHandler(shared_ptr<TcpConnection> tcp_connection, const boost::system::error_code &error) {
   void AcceptHandler(shared_ptr<tcp::socket> sock, const boost::system::error_code &error) {

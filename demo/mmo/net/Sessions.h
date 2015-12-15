@@ -53,22 +53,6 @@ public:
 			}
 		}
 	}
-	void SendToAllSessions(const string &s) {
-		for (int32_t i = 0; i < (int32_t)sessions_.size(); ++i) {
-			auto conn = sessions_[i];
-			if (conn) {
-				conn->Send(s);
-			}
-		}
-	}
-  void Broadcast(shared_ptr<uint8_t> data, int32_t size) {
-    for (int32_t i = 0; i < (int32_t)sessions_.size(); ++i) {
-      auto conn = sessions_[i];
-      if (conn) {
-        conn->Send(data, size);
-      }
-    }
-  }
   void Broadcast(shared_ptr<::google::protobuf::Message> packet) {
     for (int32_t i = 0; i < (int32_t)sessions_.size(); ++i) {
       auto conn = sessions_[i];

@@ -6,9 +6,6 @@
 using namespace std;
 
 class TcpClient : public NetThread, public enable_shared_from_this<TcpClient> {
-  //enum ECmdId {
-  //  SEND
-  //};
 public:
 	TcpClient() {
 	}
