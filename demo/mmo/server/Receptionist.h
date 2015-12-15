@@ -23,19 +23,6 @@ public:
 
 		self->PutMessage(broker_id, Broker::OnStart);
 	}
-	//static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, uint8_t *ptr, uint32_t size) {
-	//	auto self = dynamic_pointer_cast<Receptionist>(actor);
-	//	if (!self)
-	//		return;
-
- //   string s((const char*)ptr, size);
- //   cout << "[ActorId = " << self->actor_id_ << "]Receptionist::OnSessionPacket(" << session_id << ", " << s << ")" << endl;
-	//	auto it = self->session_to_broker_.find(session_id);
- //   if (it == self->session_to_broker_.end())
- //     return;
-
- //   self->PutMessage(it->second, Broker::OnPacket, s);
-	//}
   static void OnSessionPacket(shared_ptr<Actor> actor, int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
     auto self = dynamic_pointer_cast<Receptionist>(actor);
     if (!self)
@@ -46,22 +33,6 @@ public:
       return;
 
     self->PutMessage(it->second, Broker::OnPacket, packet);
-
-    //switch (PacketType(packet).type_) {
-    //case CS_LOGIN: {
-    //  self->PutMessage(it->second, Broker::OnPacket_CS_Login, dynamic_pointer_cast<CS_Login>(packet));
-    //  break;
-    //}
-    //case CS_CHAT: {
-    //  self->PutMessage(it->second, Broker::OnPacket_CS_Chat, dynamic_pointer_cast<CS_Chat>(packet));
-    //  break;
-    //}
-
-    //}
-
-
-    
-
   }
   static void OnSessionClosed(shared_ptr<Actor> actor, int32_t session_id, int32_t reason) {
 		auto self = dynamic_pointer_cast<Receptionist>(actor);

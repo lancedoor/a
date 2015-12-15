@@ -9,12 +9,6 @@ void Broker::OnStart(shared_ptr<Actor> actor)
 	if (!self)
 		return;
 
-  self->name_ = "guest" + to_string(self->actor_id_);
-
-  auto packet = make_shared<Packet::SC_LoginResult>();
-  packet->set_name(self->name_);
-  packet->set_welcome("welcome");
-	self->SendToClient(packet);
 }
 
 //void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
@@ -39,9 +33,18 @@ void Broker::OnStart(shared_ptr<Actor> actor)
 //	}
 //}
 
-void Broker::OnPacket_CS_Login(shared_ptr<Actor> actor, shared_ptr<Packet::CS_Login> packet)
+void Broker::OnPacket_CS_Login(shared_ptr<::google::protobuf::Message> _packet)
 {
+  auto packet = dynamic_pointer_cast<Packet::CS_Login>(_packet);
+  if (!packet)
+    return;
   cout << "Broker::OnPacket<CS_Login>(user=" << packet->user() << ")" << endl;
+
+  name_ = "guest" + to_string(actor_id_);
+  auto sc_packet = make_shared<Packet::SC_LoginResult>();
+  sc_packet->set_name(name_);
+  sc_packet->set_welcome("welcome");
+  SendToClient(sc_packet);
 }
 
 void Broker::OnPacket_CS_Say(shared_ptr<::google::protobuf::Message> _packet)
