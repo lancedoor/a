@@ -5,6 +5,7 @@
 #include <iostream>
 #include "MyTcpClient.h"
 #include "../common/Packets.pb.h"
+#include "UserInfo.h"
 
 #pragma comment(lib, "net.lib")
 #pragma comment(lib, "common.lib")
@@ -20,6 +21,7 @@ int main()
   tcp_client->SendPacket(packet);
 
   for (;;) {
+    //cout << UserInfo::Get()->GetName() << ":";
     char c[256];
     cin.getline(c, 256);
 		string s(c);

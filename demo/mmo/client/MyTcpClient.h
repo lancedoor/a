@@ -1,5 +1,6 @@
 #include "../net/TcpClient.h"
 #include "../common/Packets.pb.h"
+#include "UserInfo.h"
 
 class MyTcpClient : public TcpClient {
 public:
@@ -8,6 +9,7 @@ public:
     if (packet_type == PacketType(make_shared<Packet::SC_LoginResult>())) {
       auto p = dynamic_pointer_cast<Packet::SC_LoginResult>(packet);
       cout << p->welcome() << " " << p->name() << endl;
+      UserInfo::Get()->SetName(p->name());
     }
     else if (packet_type == PacketType(make_shared<Packet::SC_SomeoneSay>())) {
       auto p = dynamic_pointer_cast<Packet::SC_SomeoneSay>(packet);

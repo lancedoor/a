@@ -27,12 +27,18 @@
     <ClInclude Include="MyTcpClient.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="UserInfo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
