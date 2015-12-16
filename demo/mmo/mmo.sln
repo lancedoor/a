@@ -22,6 +22,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "common", "common\common.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libprotobuf", "3rd\protobuf-2.6.1\vsprojects\libprotobuf.vcxproj", "{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frame", "frame\frame.vcxproj", "{3F11566F-EFED-4828-94E1-3ADD11717F6C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "t", "t\t.vcxproj", "{1928AE04-F86F-42A7-A673-AA4D098B02F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +84,26 @@ Global
 		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|x64.ActiveCfg = Release|Win32
 		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|x86.ActiveCfg = Release|Win32
 		{3E283F37-A4ED-41B7-A3E6-A2D89D131A30}.Release|x86.Build.0 = Release|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Debug|x64.ActiveCfg = Debug|x64
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Debug|x64.Build.0 = Debug|x64
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Debug|x86.ActiveCfg = Debug|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Debug|x86.Build.0 = Debug|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Release|Any CPU.ActiveCfg = Release|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Release|x64.ActiveCfg = Release|x64
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Release|x64.Build.0 = Release|x64
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Release|x86.ActiveCfg = Release|Win32
+		{3F11566F-EFED-4828-94E1-3ADD11717F6C}.Release|x86.Build.0 = Release|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Debug|x64.ActiveCfg = Debug|x64
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Debug|x64.Build.0 = Debug|x64
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Debug|x86.ActiveCfg = Debug|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Debug|x86.Build.0 = Debug|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Release|x64.ActiveCfg = Release|x64
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Release|x64.Build.0 = Release|x64
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Release|x86.ActiveCfg = Release|Win32
+		{1928AE04-F86F-42A7-A673-AA4D098B02F7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
