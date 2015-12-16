@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include <iostream>
 #include "../net/MessageManager.h"
+//#include "../net/Threads.h"
+//#include "../net/ActorThread.h"
 #include "../net/WorkerThreadManager.h"
 #include "Receptionist.h"
 #include "MyTcpServer.h"
@@ -19,7 +21,8 @@ int main()
 	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>(tcp_server));
 	tcp_server->SetReceptionistId(receptionist_id);
 
-	WorkerThreadManager::Get()->Start();
+  WorkerThreadManager::Get()->Start();
+  //Threads<ActorThread, 2> threads;
 
 	tcp_server->Start();
 	for (;;) {

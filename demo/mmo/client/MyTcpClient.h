@@ -1,19 +1,19 @@
 #include "../net/TcpClient.h"
-#include "../common/Packets.pb.h"
-#include "UserInfo.h"
+
+struct MP_Packet : public ActorMsgQ::MsgParams {
+  shared_ptr<::google::protobuf::Message> packet;
+};
 
 class MyTcpClient : public TcpClient {
 public:
-  virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {
-    PacketType packet_type(packet);
-    if (packet_type == PacketType(make_shared<Packet::SC_LoginResult>())) {
-      auto p = dynamic_pointer_cast<Packet::SC_LoginResult>(packet);
-      cout << p->welcome() << " " << p->name() << endl;
-      UserInfo::Get()->SetName(p->name());
-    }
-    else if (packet_type == PacketType(make_shared<Packet::SC_SomeoneSay>())) {
-      auto p = dynamic_pointer_cast<Packet::SC_SomeoneSay>(packet);
-      cout << p->name() << ": " << p->text() << endl;
-    }
+  MyTcpClient(int32_t associated_actor) {
+    associated_actor_ = associated_actor;
   }
+  virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {
+    auto params = make_shared<MP_Packet>();
+    params->packet = packet;
+    ActorMsgQ::Get()->PostMsg(-2, associated_actor_, -2, params);
+  }
+private:
+  int32_t associated_actor_;
 };

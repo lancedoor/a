@@ -3,8 +3,12 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include "MyTcpClient.h"
+#include "../net/Threads.h"
+#include "../net/ActorThread.h"
+#include "../net/ActorMgr.h"
 #include "../common/Packets.pb.h"
+#include "MyTcpClient.h"
+#include "Actor_Server.h"
 #include "UserInfo.h"
 
 #pragma comment(lib, "net.lib")
@@ -13,7 +17,10 @@
 
 int main()
 {
-	auto tcp_client = make_shared<MyTcpClient>();
+  Threads<ActorThread, 1> threads;
+  auto actor_server_id = ActorMgr::Get()->AddActor(make_shared<Actor_Server>());
+
+	auto tcp_client = make_shared<MyTcpClient>(actor_server_id);
 	tcp_client->Start();
 
   auto packet = make_shared<Packet::CS_Login>();
@@ -34,6 +41,7 @@ int main()
     tcp_client->SendPacket(packet);
 	}
 	tcp_client->Stop();
-    return 0;
+
+  return 0;
 }
 
