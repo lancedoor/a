@@ -1,24 +1,36 @@
 #pragma once
-#include "TcpConnection.h"
+#include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
-class TcpConnector
+class TcpConnector : public enable_shared_from_this<TcpConnector>
 {
 public:
-	//static shared_ptr<TcpConnection> Connect(boost::asio::io_service &io_service)
-  static shared_ptr<tcp::socket> Connect(boost::asio::io_service &io_service)
+  TcpConnector(boost::asio::io_service &io_service)
+  : io_service_(io_service){
+  }
+  void Connect()
 	{
-		tcp::resolver resolver(io_service);
+		tcp::resolver resolver(io_service_);
 		tcp::resolver::query query("localhost", "55555");
-		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-
-    auto sock = make_shared<tcp::socket>(io_service);
-		boost::system::error_code error_code;
-		boost::asio::connect(*sock, endpoint_iterator, error_code);
-    return error_code ? nullptr : sock;
-
-    //return make_shared<TcpConnection>(sock);
-
-	}
+		
+    //resolver.async_resolve(query, boost::bind(&TcpConnector::ResolveHandler, shared_from_this(), _1, _2));
+    auto it = resolver.resolve(query);
+    auto sock = make_shared<tcp::socket>(io_service_);
+    boost::asio::async_connect(*sock, it, boost::bind(&TcpConnector::ConnectHandler, shared_from_this(), sock, _1, _2));
+  }
+public:
+  virtual void OnConnected(shared_ptr<tcp::socket> sock, const boost::system::error_code &ec) {}
+private:
+  void ResolveHandler(const boost::system::error_code &ec, tcp::resolver::iterator it) {
+    if (!ec) {
+      auto sock = make_shared<tcp::socket>(io_service_);
+      boost::asio::async_connect(*sock, it, boost::bind(&TcpConnector::ConnectHandler, shared_from_this(), sock, _1, _2));
+    }
+  }
+  void ConnectHandler(shared_ptr<tcp::socket> sock, const boost::system::error_code &ec, tcp::resolver::iterator it) {
+    OnConnected(sock, ec);
+  }
+private:
+  boost::asio::io_service &io_service_;
 };
 

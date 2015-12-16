@@ -1,64 +1,86 @@
 #pragma once
-#include "NetThread.h"
-#include "MessageManager.h"
-#include "ClientConnection.h"
-#include "TcpConnector.h"
+#include <memory>
 using namespace std;
+#include "TcpConnector.h"
+#include "TcpConnection.h"
 
-class TcpClient : public NetThread, public enable_shared_from_this<TcpClient> {
+class TcpClient : public enable_shared_from_this<TcpClient> {
+  class Connector : public TcpConnector {
+  public:
+    Connector(weak_ptr<TcpClient> tcp_client, boost::asio::io_service &io_service)
+      : TcpConnector(io_service) {
+      tcp_client_ = tcp_client;
+    }
+  protected:
+    void OnConnected(shared_ptr<tcp::socket> sock, const boost::system::error_code &ec) {
+      auto p = tcp_client_.lock();
+      if (p)
+        p->_OnConnected(sock, ec);
+    }
+  private:
+    weak_ptr<TcpClient> tcp_client_;
+  };
+  class Connection : public TcpPacketConnection {
+  public:
+    Connection(weak_ptr<TcpClient> tcp_client, shared_ptr<tcp::socket> _socket)
+      : TcpPacketConnection(_socket) {
+      tcp_client_ = tcp_client;
+    }
+  private:
+    virtual void OnRecvPacket(shared_ptr<::google::protobuf::Message> packet) {
+      auto p = tcp_client_.lock();
+      if (p)
+        p->OnPacket(packet);
+    }
+    virtual void OnClosed(int32_t reason) {
+      auto p = tcp_client_.lock();
+      if (p)
+        p->OnClosed(reason);
+    }
+  private:
+    weak_ptr<TcpClient> tcp_client_;
+  };
 public:
 	TcpClient() {
 	}
 	~TcpClient() {
 	}
-	void Stop() {
-    Thread::Stop();
-		io_service_.stop();
-		join();
-	}
-  void SendPacket(shared_ptr<::google::protobuf::Message> packet) {
-    auto msg = make_shared<NetThreadMsg>(NetThreadMsg::ECmdId::SEND, 0, packet);
-    msg_q_.PushBack(msg);
+
+  // Start & Stop & Poll
+  void Start() {
+    connector_ = make_shared<Connector>(shared_from_this(), io_service_);
+    connector_->Connect();
   }
+	void Stop() {
+    if (connection_)
+      connection_->Close();
+		io_service_.stop();
+	}
+  void Poll() {
+    io_service_.poll();
+  }
+
+  // SendPacket
+  void SendPacket(shared_ptr<::google::protobuf::Message> packet) {
+    if (connection_)
+      connection_->SendPacket(packet);
+  }
+protected: // Events
+  virtual void OnConnected(const boost::system::error_code &ec) {}
   virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {}
+  virtual void OnClosed(int32_t reason) {}
+
 
 private:
-	virtual void ThreadProc() {
-		auto sock = TcpConnector::Connect(io_service_);
-		if (!sock)
-			return;
-
-    auto conn = make_shared<ClientConnection>(shared_from_this(), sock);
-
-		//conn->SetHandler_OnPacket(boost::bind(&TcpClient::OnPacket, this, _1, _2));
-		conn->SetHandler_OnClose(boost::bind(&TcpClient::OnClose, this, _1));
-		conn->Start();
-		while(!stop_) {
-			io_service_.poll();
-
-			auto msg = msg_q_.PopFront();
-			if (msg) {
-        switch (msg->cmd_id)
-        {
-        case NetThreadMsg::ECmdId::SEND:
-          conn->SendPacket(msg->packet);
-        default:
-          break;
-        }
-			}
-			this_thread::sleep_for(chrono::milliseconds(1));
-		}
-		conn->Close();
-		cout << "TcpClient:ThreadProc End" << endl;
-	}
-	void OnPacket(uint8_t *ptr, uint32_t size) {
-    string s((const char*)ptr, size);
-		cout << s << endl;
-	}
-	void OnClose(int32_t reason) {
-		cout << "TcpClient::OnClose(" << reason << ")" << endl;
-	}
-
+  void _OnConnected(shared_ptr<tcp::socket> sock, const boost::system::error_code &ec) {
+    if (!ec) {
+      connection_ = make_shared<Connection>(shared_from_this(), sock);
+      connection_->Start();
+    }
+    OnConnected(ec);
+  }
 private:
 	boost::asio::io_service io_service_;
+  shared_ptr<Connector> connector_;
+  shared_ptr<Connection> connection_;
 };
