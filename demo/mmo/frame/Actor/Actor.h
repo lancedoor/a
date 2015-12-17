@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_map>
+using namespace std;
 #include <boost/function.hpp>
 #include "ActorMsgParam.h"
 

@@ -2,7 +2,7 @@
 #include <mutex>
 using namespace std;
 
-#include "../net/Singleton.h"
+#include "../frame/Util/Singleton.h"
 
 class UserInfo {
   DECLARE_SINGLETON(UserInfo)

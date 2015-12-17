@@ -1,4 +1,5 @@
 #pragma once
+#include <google/protobuf/message.h>
 #include "../Actor/ActorMsgParam.h"
 
 struct MP_Packet : public ActorMsgParam {
