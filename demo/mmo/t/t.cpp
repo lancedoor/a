@@ -76,10 +76,10 @@ protected: // Events
 
 int main()
 {
-  ClientFrame::Get()->Init(make_shared<MyClientNetActor>());
+  ClientFrame::Get()->Init(1, make_shared<MyClientNetActor>());
   ClientFrame::Get()->Start();
 
-  ServerFrame::Get()->Init(make_shared<MyServerNetActor>());
+  ServerFrame::Get()->Init(2, make_shared<MyServerNetActor>());
   ServerFrame::Get()->Start();
 
   //auto server = make_shared<MyTcpServer>();

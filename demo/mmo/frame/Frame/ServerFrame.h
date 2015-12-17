@@ -8,7 +8,8 @@ class ServerFrame : public ActorFrame {
   DECLARE_SINGLETON(ServerFrame)
 public:
   // Can ONLY be invoked from main thread <begin>
-  void Init(shared_ptr<ServerNetActor> server_net_actor) {
+  void Init(int32_t thread_count, shared_ptr<ServerNetActor> server_net_actor) {
+    ActorFrame::Init(thread_count);
     server_net_actor_ = server_net_actor;
   }
   virtual void Start() {

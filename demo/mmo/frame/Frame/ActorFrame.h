@@ -5,16 +5,28 @@ using namespace std;
 
 class ActorFrame {
 public:
+  ActorFrame() {
+    thread_count_ = 1;
+  }
+
   // Can ONLY be invoked from main thread <begin>
+  void Init(int32_t thread_count) {
+    thread_count_ = thread_count;
+  }
   virtual void Start() {
     actor_mgr_ = make_shared<ActorMgr>();
     actor_msg_q_ = make_shared<ActorMsgQ>();
-    actor_thread_ = make_shared<ActorThread>(actor_mgr_, actor_msg_q_);
-    actor_thread_->Start();
+    for (int i = 0; i < thread_count_; ++i) {
+      auto t = make_shared<ActorThread>(actor_mgr_, actor_msg_q_);
+      actor_threads_.push_back(t);
+      t->Start();
+    }
   }
   virtual void Stop() {
-    actor_thread_->Stop();
-    actor_thread_->join();
+    for (auto t : actor_threads_)
+      t->Stop();
+    for (auto t : actor_threads_)
+      t->join();
   }
   // Can ONLY be invoked from main thread <end>
 
@@ -22,7 +34,9 @@ public:
   }
 
 protected:
+  int32_t thread_count_;
+
   shared_ptr<ActorMgr> actor_mgr_;
   shared_ptr<ActorMsgQ> actor_msg_q_;
-  shared_ptr<ActorThread> actor_thread_;
+  vector<shared_ptr<ActorThread>> actor_threads_;
 };

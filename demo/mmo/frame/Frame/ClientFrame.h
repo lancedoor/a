@@ -10,7 +10,8 @@ class ClientFrame : public ActorFrame {
   DECLARE_SINGLETON(ClientFrame)
 public:
   // Can ONLY be invoked from main thread <begin>
-  void Init(shared_ptr<ClientNetActor> client_net_actor) {
+  void Init(int32_t thread_count, shared_ptr<ClientNetActor> client_net_actor) {
+    ActorFrame::Init(thread_count);
     client_net_actor_ = client_net_actor;
   }
   virtual void Start() {
