@@ -24,14 +24,14 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MyServerNetActor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Receptionist.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Broker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MyTcpServer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -40,12 +40,6 @@
     </ClCompile>
     <ClCompile Include="server.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Broker.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Receptionist.cpp">
-      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

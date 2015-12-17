@@ -1,43 +1,55 @@
 #pragma once
-#include "../net/Actor.h"
-#include "../net/PacketType.h"
+#include "../frame/NetActor/ConnectionActor.h"
+#include "../frame/Net/PacketType.h"
 #include "../common/Packets.pb.h"
 
-class Broker : public Actor {
+class Broker : public ConnectionActor {
 public:
-	Broker(int32_t receptionist_id)
-		: receptionist_id_(receptionist_id) {
-    packet_handlers_[PacketType(make_shared<Packet::CS_Login>())] = boost::bind(&Broker::OnPacket_CS_Login, this, _1);
-    packet_handlers_[PacketType(make_shared<Packet::CS_Say>())] = boost::bind(&Broker::OnPacket_CS_Say, this, _1);
+	Broker() {
+    RegisterPacketHandler<Packet::CS_Login>(boost::bind(&Broker::OnPacket_CS_Login, this, _1));
+    RegisterPacketHandler<Packet::CS_Say>(boost::bind(&Broker::OnPacket_CS_Say, this, _1));
 	}
-	static void OnStart(shared_ptr<Actor> actor);
-  void OnPacket_CS_Login(shared_ptr<::google::protobuf::Message> _packet);
-  void OnPacket_CS_Say(shared_ptr<::google::protobuf::Message> _packet);
+protected:
+  virtual void OnConnected() {
+    cout << "Broker::OnConnected(" + to_string(GetActorId()) + "," + to_string(GetSessionId()) + ")\n";
+  }
+  virtual void OnClosed(int32_t reason) {
+    cout << "Broker::OnClosed(" + to_string(GetActorId()) + "," + to_string(GetSessionId()) + "," + to_string(reason) + ")\n";
+  }
 
-  static void OnClosed(shared_ptr<Actor> actor, int32_t reason) {
-		auto self = dynamic_pointer_cast<Broker>(actor);
-		if (!self)
-			return;
+  void OnPacket_CS_Login(shared_ptr<::google::protobuf::Message> _packet) {
+    auto packet = dynamic_pointer_cast<Packet::CS_Login>(_packet);
+    if (!packet)
+      return;
+    cout << "Broker::OnPacket_CS_Login(user=" << packet->user() << ")" << endl;
 
-		cout << "[ActorId = " << self->actor_id_ << "]Broker::OnClosed(" << reason << ")" << endl;
-	}
+    name_ = "guest" + to_string(GetActorId());
+    auto reply_packet = make_shared<Packet::SC_LoginResult>();
+    reply_packet->set_name(name_);
+    reply_packet->set_welcome("welcome");
+    SendToClient(reply_packet);
+  }
 
-  static void OnPacket(shared_ptr<Actor> actor, shared_ptr<::google::protobuf::Message> packet) {
-    auto self = dynamic_pointer_cast<Broker>(actor);
-    if (!self)
+  void OnPacket_CS_Say(shared_ptr<::google::protobuf::Message> _packet) {
+    auto packet = dynamic_pointer_cast<Packet::CS_Say>(_packet);
+    if (!packet)
       return;
 
-    PacketType packet_type(packet);
-    auto it = self->packet_handlers_.find(packet_type);
-    if (it != self->packet_handlers_.end()) {
-      it->second(packet);
-    }
+    cout << name_ + ":" + packet->text() << endl;
+
+    auto reply_packet = make_shared<Packet::SC_SomeoneSay>();
+    reply_packet->set_name(name_);
+    reply_packet->set_text(packet->text());
+
+    Broadcast(reply_packet);
   }
 private:
-	void SendToClient(shared_ptr<::google::protobuf::Message> packet);
+  void SendToClient(shared_ptr<::google::protobuf::Message> packet) {
+    ServerFrame::Get()->SendPacket(GetSessionId(), packet);
+  }
+  void Broadcast(shared_ptr<::google::protobuf::Message> packet) {
+    ServerFrame::Get()->BroadcastPacket(packet);
+  }
 private:
-	int32_t receptionist_id_;
-  unordered_map<PacketType, boost::function<void(shared_ptr<::google::protobuf::Message>)>> packet_handlers_;
-
   string name_;
 };

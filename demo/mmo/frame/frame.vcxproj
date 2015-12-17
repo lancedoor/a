@@ -152,6 +152,7 @@
     <ClInclude Include="Frame\ClientFrame.h" />
     <ClInclude Include="Frame\ServerFrame.h" />
     <ClInclude Include="NetActor\ClientNetActor.h" />
+    <ClInclude Include="NetActor\ConnectionActor.h" />
     <ClInclude Include="NetActor\MsgParamDefine.h" />
     <ClInclude Include="NetActor\NamedMsgId.h" />
     <ClInclude Include="NetActor\NetThread.h" />

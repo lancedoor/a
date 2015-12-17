@@ -3,13 +3,6 @@
 #include <regex>
 #include "Receptionist.h"
 
-void Broker::OnStart(shared_ptr<Actor> actor)
-{
-	auto self = dynamic_pointer_cast<Broker>(actor);
-	if (!self)
-		return;
-
-}
 
 //void Broker::OnPacket(shared_ptr<Actor> actor, const string &s)
 //{

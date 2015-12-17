@@ -24,13 +24,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyTcpClient.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="UserInfo.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Actor_Server.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

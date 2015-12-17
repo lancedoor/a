@@ -30,7 +30,15 @@ public:
   }
   // Can ONLY be invoked from main thread <end>
 
-  void AddActor() {
+  template<typename ActorClass>
+  int32_t AddActor() {
+    if (!actor_mgr_)
+      return -1;
+    return actor_mgr_->AddActor(make_shared<ActorClass>());
+  }
+
+  void PostMsg(int32_t sender, int32_t receiver, int32_t msg_id, shared_ptr<ActorMsgParam> params) {
+    actor_msg_q_->PostMsg(sender, receiver, msg_id, params);
   }
 
 protected:

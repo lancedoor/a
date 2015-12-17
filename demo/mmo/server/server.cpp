@@ -3,28 +3,31 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include "../net/MessageManager.h"
-//#include "../net/Threads.h"
-//#include "../net/ActorThread.h"
-#include "../net/WorkerThreadManager.h"
-#include "Receptionist.h"
-#include "MyTcpServer.h"
+#include <memory>
+using namespace std;
 
-#pragma comment(lib, "net.lib")
-#pragma comment(lib, "common.lib")
+#include "../frame/Frame/ServerFrame.h"
+#include "../common/Packets.pb.h"
+#include "MyServerNetActor.h"
+
 #pragma comment(lib, "libprotobuf.lib")
+#pragma comment(lib, "frame.lib")
+#pragma comment(lib, "common.lib")
 
 int main()
 {
-	auto tcp_server = make_shared<MyTcpServer>();
+  ServerFrame::Get()->Init(2, make_shared<MyServerNetActor>());
+  ServerFrame::Get()->Start();
 
-	int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>(tcp_server));
-	tcp_server->SetReceptionistId(receptionist_id);
+	//auto tcp_server = make_shared<MyTcpServer>();
 
-  WorkerThreadManager::Get()->Start();
+	//int32_t receptionist_id = ActorManager::Get()->AddActor(make_shared<Receptionist>(tcp_server));
+	//tcp_server->SetReceptionistId(receptionist_id);
+
+ // WorkerThreadManager::Get()->Start();
   //Threads<ActorThread, 2> threads;
 
-	tcp_server->Start();
+	//tcp_server->Start();
 	for (;;) {
     char c[256];
     cin.getline(c, 256);
@@ -38,10 +41,13 @@ int main()
     auto packet = make_shared<Packet::SC_SomeoneSay>();
     packet->set_name("System");
     packet->set_text(s);
-    tcp_server->BroadcastPacket(packet);
+    //tcp_server->BroadcastPacket(packet);
+    ServerFrame::Get()->BroadcastPacket(packet);
 	}
-	tcp_server->Stop();
-	WorkerThreadManager::Get()->Stop();
+	//tcp_server->Stop();
+	//WorkerThreadManager::Get()->Stop();
+
+  ServerFrame::Get()->Stop();
 	return 0;
 }
 
