@@ -7,7 +7,7 @@
 class ServerFrame : public ActorFrame {
   DECLARE_SINGLETON(ServerFrame)
 public:
-  // Only in main thread <begin>
+  // Can ONLY be invoked from main thread <begin>
   void Init(shared_ptr<ServerNetActor> server_net_actor) {
     server_net_actor_ = server_net_actor;
   }
@@ -19,8 +19,9 @@ public:
   virtual void Stop() {
     ActorFrame::Stop();
     tcp_server_thread_.Stop();
+    tcp_server_thread_.join();
   }
-  // Only in main thread <end>
+  // Can ONLY be invoked from main thread <end>
 
   void SendPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
     auto msg = make_shared<NetThreadMsg>(NetThreadMsg::SEND, session_id, packet);

@@ -76,8 +76,8 @@ protected: // Events
 
 int main()
 {
-  auto net_actor = make_shared<MyClientNetActor>();
-  ClientFrame::Get()->Start(net_actor);
+  ClientFrame::Get()->Init(make_shared<MyClientNetActor>());
+  ClientFrame::Get()->Start();
 
   ServerFrame::Get()->Init(make_shared<MyServerNetActor>());
   ServerFrame::Get()->Start();

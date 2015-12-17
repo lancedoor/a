@@ -5,7 +5,7 @@ using namespace std;
 
 class ActorFrame {
 public:
-  // Only in main thread <begin>
+  // Can ONLY be invoked from main thread <begin>
   virtual void Start() {
     actor_mgr_ = make_shared<ActorMgr>();
     actor_msg_q_ = make_shared<ActorMsgQ>();
@@ -16,7 +16,7 @@ public:
     actor_thread_->Stop();
     actor_thread_->join();
   }
-  // Only in main thread <end>
+  // Can ONLY be invoked from main thread <end>
 
   void AddActor() {
   }

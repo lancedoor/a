@@ -1,4 +1,5 @@
 #pragma once
+#include "../Actor/ActorMsgQ.h"
 #include "../Net/TcpClient.h"
 #include "NetThread.h"
 #include "NamedMsgId.h"
