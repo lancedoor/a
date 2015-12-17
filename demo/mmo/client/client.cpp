@@ -3,20 +3,14 @@
 
 #include "stdafx.h"
 #include <iostream>
-//#include "../net/Threads.h"
-//#include "../net/ActorThread.h"
-//#include "../net/ActorMgr.h"
 #include "../frame/NetActor/ClientNetActor.h"
 #include "../frame/Frame/ClientFrame.h"
 #include "../common/Packets.pb.h"
-//#include "MyTcpClient.h"
-//#include "Actor_Server.h"
 #include "UserInfo.h"
 
-//#pragma comment(lib, "net.lib")
+#pragma comment(lib, "libprotobuf.lib")
 #pragma comment(lib, "frame.lib")
 #pragma comment(lib, "common.lib")
-#pragma comment(lib, "libprotobuf.lib")
 
 class MyClientNetActor : public ClientNetActor {
 public:
@@ -45,15 +39,8 @@ int main()
   ClientFrame::Get()->Init(1, make_shared<MyClientNetActor>());
   ClientFrame::Get()->Start();
 
- // Threads<ActorThread, 1> threads;
- // auto actor_server_id = ActorMgr::Get()->AddActor(make_shared<Actor_Server>());
-
-	//auto tcp_client = make_shared<MyTcpClient>(actor_server_id);
-	//tcp_client->Start();
-
   auto packet = make_shared<Packet::CS_Login>();
   packet->set_user("guest");
-  //tcp_client->SendPacket(packet);
   ClientFrame::Get()->SendPacket(packet);
 
   for (;;) {
@@ -67,10 +54,8 @@ int main()
 
     auto packet = make_shared<Packet::CS_Say>();
     packet->set_text(s);
-    //tcp_client->SendPacket(packet);
     ClientFrame::Get()->SendPacket(packet);
 	}
-	//tcp_client->Stop();
 
   ClientFrame::Get()->Stop();
   return 0;
