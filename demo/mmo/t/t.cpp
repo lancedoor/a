@@ -20,7 +20,7 @@ using namespace std;
 class MyClientNetActor : public ClientNetActor {
 public:
   MyClientNetActor() {
-    RegisterPacketHandler(PacketType(make_shared<Packet::SC_SomeoneSay>()), boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, this, _1));
+    RegisterPacketHandler<Packet::SC_SomeoneSay>(boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, this, _1));
   }
 private:
   void OnPacket_SC_SomeoneSay(shared_ptr<::google::protobuf::Message> _packet) {
@@ -79,7 +79,7 @@ int main()
   ClientFrame::Get()->Init(1, make_shared<MyClientNetActor>());
   ClientFrame::Get()->Start();
 
-  ServerFrame::Get()->Init(2, make_shared<MyServerNetActor>());
+  ServerFrame::Get()->Init(2, []()->shared_ptr<ConnectionActor> {return make_shared<ConnectionActor>();});
   ServerFrame::Get()->Start();
 
   //auto server = make_shared<MyTcpServer>();

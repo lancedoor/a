@@ -1,61 +1,89 @@
 #pragma once
 #include "../Actor/ActorMsgQ.h"
+#include "../Actor/ActorMgr.h"
 #include "../Net/TcpServer.h"
 #include "NetThread.h"
 #include "NamedMsgId.h"
 #include "MsgParamDefine.h"
+#include "ConnectionActor.h"
+
+typedef shared_ptr<ConnectionActor>(*ConnectionActorCreator)();
 
 class TcpServerThread : public NetThread {
   class MyTcpServer : public TcpServer {
   public:
-    MyTcpServer(shared_ptr<ActorMsgQ> actor_msg_q, int32_t net_actor_id) {
+    MyTcpServer(shared_ptr<ActorMsgQ> actor_msg_q, 
+                shared_ptr<ActorMgr> actor_mgr,
+                ConnectionActorCreator actor_creator) {
       actor_msg_q_ = actor_msg_q;
-      net_actor_id_ = net_actor_id;
+      actor_mgr_ = actor_mgr;
+      actor_creator_ = actor_creator;
 
-      msg_id_on_new_session_ = NamedMsgId::Get()->GetMsgId("core::net::on_new_session");
-      msg_id_on_session_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_session_packet");
-      msg_id_on_session_closed_ = NamedMsgId::Get()->GetMsgId("core::net::on_session_closed");
+      msg_id_on_connected_ = NamedMsgId::Get()->GetMsgId("core::net::on_connected");
+      msg_id_on_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_packet");
+      msg_id_on_closed_ = NamedMsgId::Get()->GetMsgId("core::net::on_closed");
+
+      connection_actor_ids_.resize(GetMaxSessionCount(), -1);
     }
   private:
     virtual void OnNewSession(int32_t session_id) {
-      auto q = actor_msg_q_.lock();
-      if (!q)
+      auto actor_msg_q = actor_msg_q_.lock();
+      if (!actor_msg_q)
+        return;
+      auto actor_mgr = actor_mgr_.lock();
+      if (!actor_mgr)
+        return;
+
+      int32_t actor_id = actor_mgr->AddActor(actor_creator_());
+      connection_actor_ids_[session_id] = actor_id;
+      auto mp = make_shared<MP_I32>();
+      mp->i = session_id;
+      actor_msg_q->PostMsg(-1, actor_id, msg_id_on_connected_, mp);
+    }
+    virtual void OnSessionPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
+      int32_t actor_id = GetActorId(session_id);
+      if (actor_id == -1)
+        return;
+      auto actor_msg_q = actor_msg_q_.lock();
+      if (!actor_msg_q)
+        return;
+
+      auto msg = make_shared<MP_Packet>();
+      msg->packet = packet;
+      actor_msg_q->PostMsg(-1, actor_id, msg_id_on_packet_, msg);
+    }
+    virtual void OnSessionClosed(int32_t session_id, int32_t reason) {
+      int32_t actor_id = GetActorId(session_id);
+      if (actor_id == -1)
+        return;
+      auto actor_msg_q = actor_msg_q_.lock();
+      if (!actor_msg_q)
         return;
 
       auto msg = make_shared<MP_I32>();
-      msg->i = session_id;
-      q->PostMsg(-1, net_actor_id_, msg_id_on_new_session_, msg);
+      msg->i = reason;
+      actor_msg_q->PostMsg(-1, actor_id, msg_id_on_closed_, msg);
     }
-    virtual void OnSessionPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
-      auto q = actor_msg_q_.lock();
-      if (!q)
-        return;
-
-      auto msg = make_shared<MP_SessionPacket>();
-      msg->session_id = session_id;
-      msg->packet = packet;
-      q->PostMsg(-1, net_actor_id_, msg_id_on_session_packet_, msg);
-    }
-    virtual void OnSessionClosed(int32_t session_id, int32_t reason) {
-      auto q = actor_msg_q_.lock();
-      if (!q)
-        return;
-
-      auto msg = make_shared<MP_I32_I32>();
-      msg->i = session_id;
-      msg->j = reason;
-      q->PostMsg(-1, net_actor_id_, msg_id_on_session_closed_, msg);
+  private:
+    int32_t GetActorId(int32_t session_id) {
+      if (session_id < 0 || session_id >= GetMaxSessionCount())
+        return -1;
+      return connection_actor_ids_[session_id];
     }
   private:
     weak_ptr<ActorMsgQ> actor_msg_q_;
-    int32_t net_actor_id_;
-    int32_t msg_id_on_new_session_;
-    int32_t msg_id_on_session_packet_;
-    int32_t msg_id_on_session_closed_;
+    weak_ptr<ActorMgr> actor_mgr_;
+    ConnectionActorCreator actor_creator_;
+    int32_t msg_id_on_connected_;
+    int32_t msg_id_on_packet_;
+    int32_t msg_id_on_closed_;
+    vector<int32_t> connection_actor_ids_;
   };
 public:
-  virtual void Start(shared_ptr<ActorMsgQ> actor_msg_q, int32_t net_actor_id) {
-    tcp_server_ = make_shared<MyTcpServer>(actor_msg_q, net_actor_id);
+  virtual void Start(shared_ptr<ActorMsgQ> actor_msg_q,
+                    shared_ptr<ActorMgr> actor_mgr,
+                    ConnectionActorCreator actor_creator) {
+    tcp_server_ = make_shared<MyTcpServer>(actor_msg_q, actor_mgr, actor_creator);
     tcp_server_->Start();
     Thread::Start();
   }

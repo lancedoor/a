@@ -16,7 +16,7 @@ using namespace std;
 
 int main()
 {
-  ServerFrame::Get()->Init(2, make_shared<MyServerNetActor>());
+  ServerFrame::Get()->Init(2, []() -> shared_ptr<ConnectionActor> {return make_shared<Broker>();});
   ServerFrame::Get()->Start();
 
 	//auto tcp_server = make_shared<MyTcpServer>();

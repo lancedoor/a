@@ -8,14 +8,13 @@ class ServerFrame : public ActorFrame {
   DECLARE_SINGLETON(ServerFrame)
 public:
   // Can ONLY be invoked from main thread <begin>
-  void Init(int32_t thread_count, shared_ptr<ServerNetActor> server_net_actor) {
+  void Init(int32_t thread_count, ConnectionActorCreator actor_creator) {
     ActorFrame::Init(thread_count);
-    server_net_actor_ = server_net_actor;
+    actor_creator_ = actor_creator;
   }
   virtual void Start() {
     ActorFrame::Start();
-    int32_t net_actor_id = actor_mgr_->AddActor(server_net_actor_);
-    tcp_server_thread_.Start(actor_msg_q_, net_actor_id);
+    tcp_server_thread_.Start(actor_msg_q_, actor_mgr_, actor_creator_);
   }
   virtual void Stop() {
     ActorFrame::Stop();
@@ -34,5 +33,5 @@ public:
   }
 private:
   TcpServerThread tcp_server_thread_;
-  shared_ptr<ServerNetActor> server_net_actor_;
+  ConnectionActorCreator actor_creator_;
 };

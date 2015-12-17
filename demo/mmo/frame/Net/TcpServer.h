@@ -52,6 +52,10 @@ public:
 	}
 	~TcpServer() {
 	}
+  int32_t GetMaxSessionCount() {
+    return 2;
+  }
+
   void Start() {
     acceptor_ = make_shared<Acceptor>(shared_from_this(), io_service_);
     acceptor_->Start();

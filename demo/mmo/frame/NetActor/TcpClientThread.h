@@ -11,10 +11,28 @@ class TcpClientThread : public NetThread {
     MyTcpClient(shared_ptr<ActorMsgQ> actor_msg_q, int32_t net_actor_id) {
       actor_msg_q_ = actor_msg_q;
       net_actor_id_ = net_actor_id;
-      net_msg_id_on_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_packet");
+
+      msg_id_on_connect_failed_ = NamedMsgId::Get()->GetMsgId("core::net::on_connect_failed");
+      msg_id_on_connected_ = NamedMsgId::Get()->GetMsgId("core::net::on_connected");
+      msg_id_on_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_packet");
+      msg_id_on_closed_ = NamedMsgId::Get()->GetMsgId("core::net::on_closed");
     }
   private:
-    virtual void OnConnected(const boost::system::error_code &ec) {}
+    virtual void OnConnected(const boost::system::error_code &ec) {
+      auto q = actor_msg_q_.lock();
+      if (!q)
+        return;
+
+      auto msg = make_shared<MP_I32>();
+
+      if (ec) {
+        msg->i = ec.value();
+        q->PostMsg(-1, net_actor_id_, msg_id_on_connect_failed_, msg);
+      } else {
+        msg->i = 0;
+        q->PostMsg(-1, net_actor_id_, msg_id_on_connected_, msg);
+      }
+    }
     virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {
       auto q = actor_msg_q_.lock();
       if (!q)
@@ -22,13 +40,16 @@ class TcpClientThread : public NetThread {
 
       auto msg = make_shared<MP_Packet>();
       msg->packet = packet;
-      q->PostMsg(-1, net_actor_id_, net_msg_id_on_packet_, msg);
+      q->PostMsg(-1, net_actor_id_, msg_id_on_packet_, msg);
     }
     virtual void OnClosed(int32_t reason) {}
   private:
     weak_ptr<ActorMsgQ> actor_msg_q_;
     int32_t net_actor_id_;
-    int32_t net_msg_id_on_packet_;
+    int32_t msg_id_on_connect_failed_;
+    int32_t msg_id_on_connected_;
+    int32_t msg_id_on_packet_;
+    int32_t msg_id_on_closed_;
   };
 public:
   virtual void Start(shared_ptr<ActorMsgQ> actor_msg_q, int32_t net_actor_id) {

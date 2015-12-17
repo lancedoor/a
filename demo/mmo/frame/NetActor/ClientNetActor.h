@@ -1,32 +1,23 @@
 #pragma once
 #include <boost/bind.hpp>
-#include "../Actor/Actor.h"
 #include "../Net/PacketType.h"
 #include "MsgParamDefine.h"
 #include "NamedMsgId.h"
+#include "ConnectionActor.h"
 
-class ClientNetActor : public Actor {
+class ClientNetActor : public ConnectionActor {
   typedef boost::function<void(shared_ptr<::google::protobuf::Message>)> PacketHandler;
 public:
   ClientNetActor() {
-    RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_packet"), boost::bind(&ClientNetActor::OnMsg_Packet, this, _1, _2));
+    RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_connect_failed"), boost::bind(&ClientNetActor::OnMsg_ConnectFailed, this, _1, _2));
   }
 protected:
-  void RegisterPacketHandler(const PacketType &packet_type, const PacketHandler &handler) {
-    packet_handlers_[packet_type] = handler;
-  }
+  virtual void OnConnectFailed(int32_t error_code) {}
 private:
-  void OnMsg_Packet(int32_t sender_id, shared_ptr<ActorMsgParam> param) {
-    auto  mp_packet = dynamic_pointer_cast<MP_Packet>(param);
-    if (!mp_packet)
+  void OnMsg_ConnectFailed(int32_t sender_id, shared_ptr<ActorMsgParam> param) {
+    auto  mp = dynamic_pointer_cast<MP_I32>(param);
+    if (!mp)
       return;
-
-    PacketType packet_type(mp_packet->packet);
-    auto it = packet_handlers_.find(packet_type);
-    if (it != packet_handlers_.end()) {
-      it->second(mp_packet->packet);
-    }
+    OnConnectFailed(mp->i);
   }
-private:
-  unordered_map<PacketType, PacketHandler> packet_handlers_;
 };
