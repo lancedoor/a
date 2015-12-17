@@ -1,11 +1,9 @@
 #pragma once
 #include <mutex>
 #include <vector>
-#include "Singleton.h"
 #include "Actor.h"
 
 class ActorMgr {
-	DECLARE_SINGLETON(ActorMgr)
 public:
 	int32_t AddActor(shared_ptr<Actor> actor) {
 		lock_guard<mutex> lg(mutex_);

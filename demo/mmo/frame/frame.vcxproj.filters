@@ -25,41 +25,14 @@
     <Filter Include="Source Files\Net">
       <UniqueIdentifier>{42b35b05-b636-40aa-b8f9-a52fbfe4a759}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Frame">
+      <UniqueIdentifier>{0d07551d-5788-4644-9109-4bdd1a21d75d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Actor.h">
-      <Filter>Source Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientNetActor.h">
-      <Filter>Source Files\NetActor</Filter>
-    </ClInclude>
-    <ClInclude Include="ActorMgr.h">
-      <Filter>Source Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="ActorMsgQ.h">
-      <Filter>Source Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="ActorThread.h">
-      <Filter>Source Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="MutexPtrDeque.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Threads.h">
-      <Filter>Source Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="NetActor\MsgParamsDefine.h">
-      <Filter>Source Files\NetActor</Filter>
-    </ClInclude>
     <ClInclude Include="Net\TcpAcceptor.h">
       <Filter>Source Files\Net</Filter>
     </ClInclude>
@@ -84,13 +57,64 @@
     <ClInclude Include="Net\Sessions.h">
       <Filter>Source Files\Net</Filter>
     </ClInclude>
+    <ClInclude Include="Frame\ServerFrame.h">
+      <Filter>Source Files\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Frame\ClientFrame.h">
+      <Filter>Source Files\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\TcpClientThread.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\NetThread.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\ClientNetActor.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\NamedMsgId.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Singleton.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MutexPtrDeque.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Thread.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Threads.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\Actor.h">
+      <Filter>Source Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\ActorMgr.h">
+      <Filter>Source Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\ActorMsgQ.h">
+      <Filter>Source Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\ActorThread.h">
+      <Filter>Source Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\NetThreadMsg.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor\ActorMsgParam.h">
+      <Filter>Source Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\MsgParamDefine.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ActorMgr.cpp">
-      <Filter>Source Files\Actor</Filter>
+    <ClCompile Include="Frame\ClientFrame.cpp">
+      <Filter>Source Files\Frame</Filter>
     </ClCompile>
-    <ClCompile Include="ActorMsgQ.cpp">
-      <Filter>Source Files\Actor</Filter>
+    <ClCompile Include="NetActor\NamedMsgId.cpp">
+      <Filter>Source Files\NetActor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

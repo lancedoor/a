@@ -1,5 +1,6 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <boost/bind.hpp>
 
 using boost::asio::ip::tcp;
 class TcpConnector : public enable_shared_from_this<TcpConnector>

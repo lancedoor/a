@@ -2,7 +2,7 @@
 #include <memory>
 using namespace std;
 #include "TcpConnector.h"
-#include "TcpConnection.h"
+#include "TcpPacketConnection.h"
 
 class TcpClient : public enable_shared_from_this<TcpClient> {
   class Connector : public TcpConnector {

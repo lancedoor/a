@@ -4,26 +4,22 @@
 #include <unordered_set>
 #include <deque>
 #include <mutex>
-#include "Singleton.h"
 using namespace std;
 
-class ActorMsgQ {
-  DECLARE_SINGLETON(ActorMsgQ)
-public:
-  struct MsgParams {
-    virtual ~MsgParams() {}
-  };
+#include "ActorMsgParam.h"
 
+class ActorMsgQ {
+public:
   struct Msg {
     int32_t sender;
     int32_t receiver;
     int32_t msg_id;
-    shared_ptr<MsgParams> params;
+    shared_ptr<ActorMsgParam> params;
   };
 
   typedef deque<shared_ptr<Msg>> MsgQ;
 public:
-  void PostMsg(int32_t sender, int32_t receiver, int32_t msg_id, shared_ptr<MsgParams> params) {
+  void PostMsg(int32_t sender, int32_t receiver, int32_t msg_id, shared_ptr<ActorMsgParam> params) {
     auto msg = make_shared<Msg>();
     msg->sender = sender;
     msg->receiver = receiver;

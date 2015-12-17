@@ -5,6 +5,9 @@
 #include <iostream>
 #include <thread>
 using namespace std;
+#include "../frame/Frame/ClientFrame.h"
+#include "../frame/NetActor/ClientNetActor.h"
+
 #include "../frame/Net/TcpServer.h"
 #include "../frame/Net/TcpClient.h"
 #include "../common/Packets.pb.h"
@@ -13,6 +16,18 @@ using namespace std;
 #pragma comment(lib, "frame.lib")
 #pragma comment(lib, "common.lib")
 
+class MyClientNetActor : public ClientNetActor {
+public:
+  MyClientNetActor() {
+    RegisterPacketHandler(PacketType(make_shared<Packet::SC_SomeoneSay>()), boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, this, _1));
+  }
+private:
+  void OnPacket_SC_SomeoneSay(shared_ptr<::google::protobuf::Message> _packet) {
+    auto packet = dynamic_pointer_cast<Packet::SC_SomeoneSay>(_packet);
+    cout << packet->name() << ": " << packet->text() << endl;
+  }
+
+};
 
 class MyTcpServer : public TcpServer {
 protected:
@@ -43,28 +58,36 @@ protected: // Events
 
 int main()
 {
+  auto net_actor = make_shared<MyClientNetActor>();
+
+  ClientFrame::Get()->Start(net_actor);
+
   auto server = make_shared<MyTcpServer>();
   server->Start();
 
-  auto client = make_shared<MyTcpClient >();
-  client->Start();
+  //auto client = make_shared<MyTcpClient >();
+  //client->Start();
 
   for (;;) {
     server->Poll();
-    client->Poll();
+    //client->Poll();
     this_thread::sleep_for(chrono::seconds(1));
 
     auto packet = make_shared<Packet::CS_Say>();
     packet->set_text("client say");
-    client->SendPacket(packet);
+    ClientFrame::Get()->SendPacket(packet);
+    //client->SendPacket(packet);
 
-    packet = make_shared<Packet::CS_Say>();
-    packet->set_text("server say");
-    server->SendPacket(0, packet);
+    auto server_packet = make_shared<Packet::SC_SomeoneSay>();
+    server_packet->set_name("Server");
+    server_packet->set_text("Welcome");
+    server->SendPacket(0, server_packet);
   }
 
-  client->Stop();
+  //client->Stop();
   server->Stop();
+
+  ClientFrame::Get()->Stop();
 
     return 0;
 }
