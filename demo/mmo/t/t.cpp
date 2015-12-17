@@ -6,6 +6,7 @@
 #include <thread>
 using namespace std;
 #include "../frame/Frame/ClientFrame.h"
+#include "../frame/Frame/ServerFrame.h"
 #include "../frame/NetActor/ClientNetActor.h"
 
 #include "../frame/Net/TcpServer.h"
@@ -24,7 +25,24 @@ public:
 private:
   void OnPacket_SC_SomeoneSay(shared_ptr<::google::protobuf::Message> _packet) {
     auto packet = dynamic_pointer_cast<Packet::SC_SomeoneSay>(_packet);
-    cout << packet->name() << ": " << packet->text() << endl;
+    if (!packet)
+      return;
+    cout << packet->name() + ": " + packet->text() + "\n";
+  }
+
+};
+
+class MyServerNetActor : public ServerNetActor {
+public:
+  MyServerNetActor() {
+    RegisterPacketHandler(PacketType(make_shared<Packet::CS_Say>()), boost::bind(&MyServerNetActor::OnPacket_CS_Say, this, _1, _2));
+  }
+private:
+  void OnPacket_CS_Say(int32_t session_id, shared_ptr<::google::protobuf::Message> _packet) {
+    auto packet = dynamic_pointer_cast<Packet::CS_Say>(_packet);
+    if (!packet)
+      return;
+    cout << to_string(session_id) + ": " + packet->text() + "\n";
   }
 
 };
@@ -59,17 +77,19 @@ protected: // Events
 int main()
 {
   auto net_actor = make_shared<MyClientNetActor>();
-
   ClientFrame::Get()->Start(net_actor);
 
-  auto server = make_shared<MyTcpServer>();
-  server->Start();
+  ServerFrame::Get()->Init(make_shared<MyServerNetActor>());
+  ServerFrame::Get()->Start();
+
+  //auto server = make_shared<MyTcpServer>();
+  //server->Start();
 
   //auto client = make_shared<MyTcpClient >();
   //client->Start();
 
   for (;;) {
-    server->Poll();
+    //server->Poll();
     //client->Poll();
     this_thread::sleep_for(chrono::seconds(1));
 
@@ -81,13 +101,15 @@ int main()
     auto server_packet = make_shared<Packet::SC_SomeoneSay>();
     server_packet->set_name("Server");
     server_packet->set_text("Welcome");
-    server->SendPacket(0, server_packet);
+    //server->SendPacket(0, server_packet);
+    ServerFrame::Get()->BroadcastPacket(server_packet);
   }
 
   //client->Stop();
-  server->Stop();
+  //server->Stop();
 
   ClientFrame::Get()->Stop();
+  ServerFrame::Get()->Stop();
 
     return 0;
 }

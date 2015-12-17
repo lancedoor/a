@@ -4,7 +4,7 @@
 #define _DECLARE_SINGLETON(cls)\
 public:\
 	static cls* Get() {\
-    std::lock_guard<mutex> lg(s_singleton_mutex);\
+    std::lock_guard<std::mutex> lg(s_singleton_mutex);\
 		if (!s_singleton)\
 			s_singleton = new cls;\
 		return s_singleton;\

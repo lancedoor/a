@@ -4,6 +4,10 @@
 struct MP_Packet : public ActorMsgParam {
   shared_ptr<::google::protobuf::Message> packet;
 };
+struct MP_SessionPacket : public ActorMsgParam {
+  int32_t session_id;
+  shared_ptr<::google::protobuf::Message> packet;
+};
 
 struct MP_Net : public ActorMsgParam {
   enum EMsgType {

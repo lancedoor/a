@@ -37,7 +37,6 @@ public:
     tcp_client_thread_.PostMsg(msg);
   }
 private:
-  //ActorMgr actor_mgr;
   shared_ptr<ActorMgr> actor_mgr_;
   shared_ptr<ActorMsgQ> actor_msg_q_;
   shared_ptr<ActorThread> actor_thread_;

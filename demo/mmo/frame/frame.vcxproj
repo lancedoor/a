@@ -148,6 +148,7 @@
     <ClInclude Include="Actor\ActorMsgParam.h" />
     <ClInclude Include="Actor\ActorMsgQ.h" />
     <ClInclude Include="Actor\ActorThread.h" />
+    <ClInclude Include="Frame\ActorFrame.h" />
     <ClInclude Include="Frame\ClientFrame.h" />
     <ClInclude Include="Frame\ServerFrame.h" />
     <ClInclude Include="NetActor\ClientNetActor.h" />
@@ -155,7 +156,9 @@
     <ClInclude Include="NetActor\NamedMsgId.h" />
     <ClInclude Include="NetActor\NetThread.h" />
     <ClInclude Include="NetActor\NetThreadMsg.h" />
+    <ClInclude Include="NetActor\ServerNetActor.h" />
     <ClInclude Include="NetActor\TcpClientThread.h" />
+    <ClInclude Include="NetActor\TcpServerThread.h" />
     <ClInclude Include="Net\PacketType.h" />
     <ClInclude Include="Net\Sessions.h" />
     <ClInclude Include="Net\TcpAcceptor.h" />
@@ -171,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Frame\ClientFrame.cpp" />
+    <ClCompile Include="Frame\ServerFrame.cpp" />
     <ClCompile Include="NetActor\NamedMsgId.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

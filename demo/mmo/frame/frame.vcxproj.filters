@@ -108,6 +108,15 @@
     <ClInclude Include="NetActor\MsgParamDefine.h">
       <Filter>Source Files\NetActor</Filter>
     </ClInclude>
+    <ClInclude Include="Frame\ActorFrame.h">
+      <Filter>Source Files\Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\TcpServerThread.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
+    <ClInclude Include="NetActor\ServerNetActor.h">
+      <Filter>Source Files\NetActor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Frame\ClientFrame.cpp">
@@ -115,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="NetActor\NamedMsgId.cpp">
       <Filter>Source Files\NetActor</Filter>
+    </ClCompile>
+    <ClCompile Include="Frame\ServerFrame.cpp">
+      <Filter>Source Files\Frame</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
