@@ -32,17 +32,17 @@ private:
 
 };
 
-class MyServerNetActor : public ServerNetActor {
+class Broker : public ConnectionActor {
 public:
-  MyServerNetActor() {
-    RegisterPacketHandler(PacketType(make_shared<Packet::CS_Say>()), boost::bind(&MyServerNetActor::OnPacket_CS_Say, this, _1, _2));
+  Broker() {
+    RegisterPacketHandler<Packet::CS_Say>(boost::bind(&Broker::OnPacket_CS_Say, this, _1));
   }
 private:
-  void OnPacket_CS_Say(int32_t session_id, shared_ptr<::google::protobuf::Message> _packet) {
+  void OnPacket_CS_Say(shared_ptr<::google::protobuf::Message> _packet) {
     auto packet = dynamic_pointer_cast<Packet::CS_Say>(_packet);
     if (!packet)
       return;
-    cout << to_string(session_id) + ": " + packet->text() + "\n";
+    cout << to_string(GetSessionId()) + ": " + packet->text() + "\n";
   }
 
 };
@@ -79,7 +79,7 @@ int main()
   ClientFrame::Get()->Init(1, make_shared<MyClientNetActor>());
   ClientFrame::Get()->Start();
 
-  ServerFrame::Get()->Init(2, []()->shared_ptr<ConnectionActor> {return make_shared<ConnectionActor>();});
+  ServerFrame::Get()->Init(2, []()->shared_ptr<ConnectionActor> {return make_shared<Broker>();});
   ServerFrame::Get()->Start();
 
   //auto server = make_shared<MyTcpServer>();

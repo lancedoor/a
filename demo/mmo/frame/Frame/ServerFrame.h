@@ -1,7 +1,6 @@
 #pragma once
 #include "../Util/Singleton.h"
 #include "../NetActor/TcpServerThread.h"
-#include "../NetActor/ServerNetActor.h"
 #include "ActorFrame.h"
 
 class ServerFrame : public ActorFrame {

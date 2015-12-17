@@ -8,7 +8,7 @@ using namespace std;
 
 #include "../frame/Frame/ServerFrame.h"
 #include "../common/Packets.pb.h"
-#include "MyServerNetActor.h"
+#include "Broker.h"
 
 #pragma comment(lib, "libprotobuf.lib")
 #pragma comment(lib, "frame.lib")

@@ -27,6 +27,9 @@
     <ClInclude Include="UserInfo.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MyClientNetActor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

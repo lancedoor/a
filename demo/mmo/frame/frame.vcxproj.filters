@@ -114,9 +114,6 @@
     <ClInclude Include="NetActor\TcpServerThread.h">
       <Filter>Source Files\NetActor</Filter>
     </ClInclude>
-    <ClInclude Include="NetActor\ServerNetActor.h">
-      <Filter>Source Files\NetActor</Filter>
-    </ClInclude>
     <ClInclude Include="NetActor\ConnectionActor.h">
       <Filter>Source Files\NetActor</Filter>
     </ClInclude>

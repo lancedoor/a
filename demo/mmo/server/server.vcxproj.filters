@@ -24,12 +24,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyServerNetActor.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Receptionist.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Broker.h">
       <Filter>Source Files</Filter>
     </ClInclude>
