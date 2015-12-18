@@ -54,9 +54,6 @@
     <ClInclude Include="Net\PacketType.h">
       <Filter>Source Files\Net</Filter>
     </ClInclude>
-    <ClInclude Include="Net\Sessions.h">
-      <Filter>Source Files\Net</Filter>
-    </ClInclude>
     <ClInclude Include="Frame\ServerFrame.h">
       <Filter>Source Files\Frame</Filter>
     </ClInclude>

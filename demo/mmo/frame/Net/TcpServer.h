@@ -2,7 +2,6 @@
 #include <boost/asio.hpp>
 #include "TcpAcceptor.h"
 #include "TcpPacketConnection.h"
-//#include "Sessions.h"
 #include "../Util/IdMap.h"
 using namespace std;
 
@@ -66,32 +65,21 @@ public:
   }
 	void Stop() {
     acceptor_->Stop();
-    //sessions_.CloseAllSessions();
     ClearSessions();
     io_service_.stop();
 	}
   void SendPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
-    //auto session = sessions_.GetSession(session_id);
-    //if (session)
-    //  session->SendPacket(packet);
-
     auto conn = GetConnection(session_id);
     if (conn)
       conn->SendPacket(packet);
   }
   void BroadcastPacket(shared_ptr<::google::protobuf::Message> packet) {
-    //sessions_.Broadcast(packet);
-
     for (auto &item : sessions_) {
       if (item.second)
         item.second->SendPacket(packet);
     }
   }
   void CloseSession(int32_t session_id) {
-    //auto session = sessions_.GetSession(session_id);
-    //if (session)
-    //  session->Close();
-
     auto conn = GetConnection(session_id);
     if (conn)
       conn->Close();
@@ -103,17 +91,6 @@ protected:
 private:
   void OnAccepted(shared_ptr<tcp::socket> sock) {
     auto connection = make_shared<Connection>(shared_from_this(), sock);
-
-  //  int32_t session_id = sessions_.GetUnusedSessionId();
-		//if (session_id == -1) {
-		//	//todo: send prompting message
-		//	connection->Close();
-		//} else {
-  //    connection->SetSessionId(session_id);
-		//	sessions_.SetSession(session_id, connection);
-		//	OnNewSession(session_id);
-  //    connection->Start();
-  //  }
 
     if (sessions_.IsFull()) {
       //todo: send prompting message
@@ -127,7 +104,6 @@ private:
 
 	}
 	void OnConnectionClosed(int32_t session_id, int32_t reason) {
-		//sessions_.ReleaseSession(session_id);
     sessions_.erase(session_id);
 		OnSessionClosed(session_id, reason);
 	}
@@ -146,6 +122,5 @@ private:
 private:
 	boost::asio::io_service io_service_;
   shared_ptr<Acceptor> acceptor_;
-	//Sessions<Connection> sessions_;
   IdMap<shared_ptr<Connection>> sessions_;
 };

@@ -23,8 +23,6 @@ class TcpServerThread : public NetThread {
       msg_id_on_connected_ = NamedMsgId::Get()->GetMsgId("core::net::on_connected");
       msg_id_on_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_packet");
       msg_id_on_closed_ = NamedMsgId::Get()->GetMsgId("core::net::on_closed");
-
-      //connection_actor_ids_.resize(GetMaxSessionCount(), -1);
     }
   private:
     virtual void OnNewSession(int32_t session_id) {
@@ -36,7 +34,6 @@ class TcpServerThread : public NetThread {
         return;
 
       int32_t actor_id = actor_mgr->AddActor(actor_creator_());
-      //connection_actor_ids_[session_id] = actor_id;
       session_to_actor_[session_id] = actor_id;
       auto mp = make_shared<MP_I32>();
       mp->i = session_id;
@@ -70,9 +67,6 @@ class TcpServerThread : public NetThread {
     }
   private:
     int32_t GetActorId(int32_t session_id) {
-      //if (session_id < 0 || session_id >= GetMaxSessionCount())
-      //  return -1;
-      //return connection_actor_ids_[session_id];
       auto it = session_to_actor_.find(session_id);
       return it == session_to_actor_.end() ? -1 : it->second;
     }
@@ -83,7 +77,6 @@ class TcpServerThread : public NetThread {
     int32_t msg_id_on_connected_;
     int32_t msg_id_on_packet_;
     int32_t msg_id_on_closed_;
-    //vector<int32_t> connection_actor_ids_;
     std::unordered_map<int32_t, int32_t> session_to_actor_;
   };
 public:
