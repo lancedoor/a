@@ -36,6 +36,11 @@ public:
       return -1;
     return actor_mgr_->AddActor(make_shared<ActorClass>());
   }
+  void DeleteActor(int32_t actor_id) {
+    if (!actor_mgr_)
+      return;
+    actor_mgr_->DeleteActor(actor_id);
+  }
 
   void PostMsg(int32_t sender, int32_t receiver, int32_t msg_id, shared_ptr<ActorMsgParam> params) {
     actor_msg_q_->PostMsg(sender, receiver, msg_id, params);

@@ -15,6 +15,7 @@ protected:
   }
   virtual void OnClosed(int32_t reason) {
     cout << "Broker::OnClosed(" + to_string(GetActorId()) + "," + to_string(GetSessionId()) + "," + to_string(reason) + ")\n";
+    ServerFrame::Get()->DeleteActor(GetActorId());
   }
 
   void OnPacket_CS_Login(shared_ptr<::google::protobuf::Message> _packet) {
