@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include "../Actor/ActorMsgQ.h"
 #include "../Actor/ActorMgr.h"
 #include "../Net/TcpServer.h"
@@ -23,7 +24,7 @@ class TcpServerThread : public NetThread {
       msg_id_on_packet_ = NamedMsgId::Get()->GetMsgId("core::net::on_packet");
       msg_id_on_closed_ = NamedMsgId::Get()->GetMsgId("core::net::on_closed");
 
-      connection_actor_ids_.resize(GetMaxSessionCount(), -1);
+      //connection_actor_ids_.resize(GetMaxSessionCount(), -1);
     }
   private:
     virtual void OnNewSession(int32_t session_id) {
@@ -35,7 +36,8 @@ class TcpServerThread : public NetThread {
         return;
 
       int32_t actor_id = actor_mgr->AddActor(actor_creator_());
-      connection_actor_ids_[session_id] = actor_id;
+      //connection_actor_ids_[session_id] = actor_id;
+      session_to_actor_[session_id] = actor_id;
       auto mp = make_shared<MP_I32>();
       mp->i = session_id;
       actor_msg_q->PostMsg(-1, actor_id, msg_id_on_connected_, mp);
@@ -56,6 +58,8 @@ class TcpServerThread : public NetThread {
       int32_t actor_id = GetActorId(session_id);
       if (actor_id == -1)
         return;
+      session_to_actor_.erase(session_id);
+
       auto actor_msg_q = actor_msg_q_.lock();
       if (!actor_msg_q)
         return;
@@ -66,9 +70,11 @@ class TcpServerThread : public NetThread {
     }
   private:
     int32_t GetActorId(int32_t session_id) {
-      if (session_id < 0 || session_id >= GetMaxSessionCount())
-        return -1;
-      return connection_actor_ids_[session_id];
+      //if (session_id < 0 || session_id >= GetMaxSessionCount())
+      //  return -1;
+      //return connection_actor_ids_[session_id];
+      auto it = session_to_actor_.find(session_id);
+      return it == session_to_actor_.end() ? -1 : it->second;
     }
   private:
     weak_ptr<ActorMsgQ> actor_msg_q_;
@@ -77,7 +83,8 @@ class TcpServerThread : public NetThread {
     int32_t msg_id_on_connected_;
     int32_t msg_id_on_packet_;
     int32_t msg_id_on_closed_;
-    vector<int32_t> connection_actor_ids_;
+    //vector<int32_t> connection_actor_ids_;
+    std::unordered_map<int32_t, int32_t> session_to_actor_;
   };
 public:
   virtual void Start(shared_ptr<ActorMsgQ> actor_msg_q,
