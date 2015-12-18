@@ -23,14 +23,14 @@ class TcpClientThread : public NetThread {
       if (!q)
         return;
 
-      auto msg = make_shared<MP_I32>();
+      auto mp = make_shared<MP_I32>();
 
       if (ec) {
-        msg->i = ec.value();
-        q->PostMsg(-1, net_actor_id_, msg_id_on_connect_failed_, msg);
+        mp->i = ec.value();
+        q->PostMsg(-1, net_actor_id_, msg_id_on_connect_failed_, mp);
       } else {
-        msg->i = 0;
-        q->PostMsg(-1, net_actor_id_, msg_id_on_connected_, msg);
+        mp->i = 0;
+        q->PostMsg(-1, net_actor_id_, msg_id_on_connected_, mp);
       }
     }
     virtual void OnPacket(shared_ptr<::google::protobuf::Message> packet) {
@@ -38,11 +38,19 @@ class TcpClientThread : public NetThread {
       if (!q)
         return;
 
-      auto msg = make_shared<MP_Packet>();
-      msg->packet = packet;
-      q->PostMsg(-1, net_actor_id_, msg_id_on_packet_, msg);
+      auto mp = make_shared<MP_Packet>();
+      mp->packet = packet;
+      q->PostMsg(-1, net_actor_id_, msg_id_on_packet_, mp);
     }
-    virtual void OnClosed(int32_t reason) {}
+    virtual void OnClosed(int32_t reason) {
+      auto q = actor_msg_q_.lock();
+      if (!q)
+        return;
+
+      auto mp = make_shared<MP_I32>();
+      mp->i = reason;
+      q->PostMsg(-1, net_actor_id_, msg_id_on_closed_, mp);
+    }
   private:
     weak_ptr<ActorMsgQ> actor_msg_q_;
     int32_t net_actor_id_;
