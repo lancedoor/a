@@ -49,10 +49,12 @@ public:
 			if (processing_receivers_.find(it->first) != processing_receivers_.end())
 				continue;
 
+      processing_receivers_.insert(it->first);
 			ret = it->second;
 			queues_.erase(it);
 			break;
 		}
+    
 		return ret;
 	}
 	void EndMessageQueueProcess(int32_t receiver_id) {
