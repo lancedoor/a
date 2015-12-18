@@ -167,6 +167,7 @@
     <ClInclude Include="Net\TcpPacketConnection.h" />
     <ClInclude Include="Net\TcpServer.h" />
     <ClInclude Include="Util\IdMap.h" />
+    <ClInclude Include="Util\IdPtrMap.h" />
     <ClInclude Include="Util\MutexPtrDeque.h" />
     <ClInclude Include="Util\Singleton.h" />
     <ClInclude Include="Util\Thread.h" />

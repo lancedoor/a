@@ -2,7 +2,7 @@
 #include <boost/asio.hpp>
 #include "TcpAcceptor.h"
 #include "TcpPacketConnection.h"
-#include "../Util/IdMap.h"
+#include "../Util/IdPtrMap.h"
 using namespace std;
 
 class TcpServer : public enable_shared_from_this<TcpServer> {
@@ -69,7 +69,7 @@ public:
     io_service_.stop();
 	}
   void SendPacket(int32_t session_id, shared_ptr<::google::protobuf::Message> packet) {
-    auto conn = GetConnection(session_id);
+    auto conn = sessions_.GetItem(session_id);
     if (conn)
       conn->SendPacket(packet);
   }
@@ -80,7 +80,7 @@ public:
     }
   }
   void CloseSession(int32_t session_id) {
-    auto conn = GetConnection(session_id);
+    auto conn = sessions_.GetItem(session_id);
     if (conn)
       conn->Close();
   }
@@ -108,10 +108,6 @@ private:
 		OnSessionClosed(session_id, reason);
 	}
 
-  shared_ptr<Connection> GetConnection(int32_t session_id) {
-    auto it = sessions_.find(session_id);
-    return it == sessions_.end() ? nullptr : it->second;
-  }
   void ClearSessions() {
     for (auto &item : sessions_) {
       if (item.second)
@@ -122,5 +118,5 @@ private:
 private:
 	boost::asio::io_service io_service_;
   shared_ptr<Acceptor> acceptor_;
-  IdMap<shared_ptr<Connection>> sessions_;
+  IdPtrMap<Connection> sessions_;
 };

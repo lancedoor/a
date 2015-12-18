@@ -117,6 +117,9 @@
     <ClInclude Include="Util\IdMap.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\IdPtrMap.h">
+      <Filter>Source Files\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Frame\ClientFrame.cpp">
