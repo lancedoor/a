@@ -68,8 +68,6 @@ public:
   virtual void Stop() {
     tcp_client_->Stop();
     Thread::Stop();
-    join();
-    tcp_client_ = nullptr;
   }
 
 private:

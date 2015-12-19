@@ -90,8 +90,6 @@ public:
   virtual void Stop() {
     tcp_server_->Stop();
     Thread::Stop();
-    join();
-    tcp_server_ = nullptr;
   }
 
 private:
