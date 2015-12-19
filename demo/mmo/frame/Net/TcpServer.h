@@ -90,18 +90,14 @@ protected:
   virtual void OnSessionClosed(int32_t session_id, int32_t reason) {}
 private:
   void OnAccepted(shared_ptr<tcp::socket> sock) {
+    if (sessions_.IsFull())
+      return;
+
     auto connection = make_shared<Connection>(shared_from_this(), sock);
-
-    if (sessions_.IsFull()) {
-      //todo: send prompting message
-      connection->Close();
-    } else {
-      int32_t session_id = sessions_.AddItem(connection);
-      connection->SetSessionId(session_id);
-      OnNewSession(session_id);
-      connection->Start();
-    }
-
+    int32_t session_id = sessions_.AddItem(connection);
+    connection->SetSessionId(session_id);
+    OnNewSession(session_id);
+    connection->Start();
 	}
 	void OnConnectionClosed(int32_t session_id, int32_t reason) {
     sessions_.erase(session_id);
