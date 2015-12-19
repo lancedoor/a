@@ -109,9 +109,20 @@ private:
 	}
 
   void ClearSessions() {
+    //for (auto &item : sessions_) {
+    //  if (item.second)
+    //    item.second->Close();
+    //}
+    //sessions_.clear();
+    
+    // session will probably be deleted in Close operation.
+    vector<shared_ptr<Connection>> v;
     for (auto &item : sessions_) {
-      if (item.second)
-        item.second->Close();
+      v.push_back(item.second);
+    }
+    for (auto conn : v) {
+      if (conn)
+        conn->Close();
     }
     sessions_.clear();
   }

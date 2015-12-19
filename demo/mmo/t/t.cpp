@@ -20,7 +20,11 @@ using namespace std;
 class MyClientNetActor : public ClientNetActor {
 public:
   MyClientNetActor() {
-    RegisterPacketHandler<Packet::SC_SomeoneSay>(boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, this, _1));
+    //RegisterPacketHandler<Packet::SC_SomeoneSay>(boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, this, _1));
+  }
+  virtual void Init() {
+    ClientNetActor::Init();
+    REGISTER_PACKET_HANDLER(MyClientNetActor, Packet::SC_SomeoneSay, OnPacket_SC_SomeoneSay);
   }
 private:
   void OnPacket_SC_SomeoneSay(shared_ptr<::google::protobuf::Message> _packet) {
@@ -35,8 +39,13 @@ private:
 class Broker : public ConnectionActor {
 public:
   Broker() {
-    RegisterPacketHandler<Packet::CS_Say>(boost::bind(&Broker::OnPacket_CS_Say, this, _1));
+    //RegisterPacketHandler<Packet::CS_Say>(boost::bind(&Broker::OnPacket_CS_Say, this, _1));
   }
+  virtual void Init() {
+    ConnectionActor::Init();
+    REGISTER_PACKET_HANDLER(Broker, Packet::CS_Say, OnPacket_CS_Say);
+  }
+
 private:
   void OnPacket_CS_Say(shared_ptr<::google::protobuf::Message> _packet) {
     auto packet = dynamic_pointer_cast<Packet::CS_Say>(_packet);

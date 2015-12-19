@@ -15,6 +15,7 @@ public:
     actor_item->actor = actor;
     int32_t actor_id = actor_items_.AddItem(actor_item);
     actor->SetActorId(actor_id);
+    actor->Init();
     return actor_id;
   }
   void DeleteActor(int32_t actor_id) {
