@@ -3,25 +3,30 @@
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include "DynamicBuffer.h"
 
 using boost::asio::ip::tcp;
 class TcpConnection : public enable_shared_from_this<TcpConnection>
 {
 public:
-	enum CloseReason {
-		CLOSEREASON_ACTIVE,
-		CLOSEREASON_PASSIVE,
-		CLOSEREASON_TIMEOUT,
+	enum ECloseReason {
+		Active,
+		Passive,
+		Timeout,
+    ErrorInSend,
 
-		_CLOSEREASON_MAX
+		_Max
 	};
 	enum {
-		RECV_BUFFER_SIZE = 1024
+		RECV_BUFFER_SIZE = 1024,
 	};
 public:
   TcpConnection(shared_ptr<tcp::socket> _socket)
     : socket_(_socket)
     , closed_(false) {
+    sending_ = false;
+    sending_buffer_ = &send_buffer_[0];
+    pending_buffer_ = &send_buffer_[1];
   }
 	~TcpConnection() {
 
@@ -33,16 +38,17 @@ public:
     if (closed_)
       return;
 
-    boost::system::error_code ignored_error;
-    boost::asio::write(*socket_, boost::asio::buffer(&size, sizeof(size)), ignored_error);
-    boost::asio::write(*socket_, boost::asio::buffer(data.get(), size), ignored_error);
+    pending_buffer_->Append((uint8_t*)&size, sizeof(size));
+    pending_buffer_->Append(data.get(), size);
+    if (!sending_)
+      LaunchAsyncWrite();
   }
 
 	void Close() {
 		if (closed_)
 			return;
 
-		InternalClose(CLOSEREASON_ACTIVE);
+		InternalClose(ECloseReason::Active);
 	}
 protected:
   virtual void OnRecv(uint8_t* ptr, uint32_t size){}
@@ -58,11 +64,11 @@ private:
 	}
 	void OnRecvHeader(const boost::system::error_code& error, size_t bytes_transferred) {
 		if (error || bytes_transferred == 0) {
-			InternalClose(CLOSEREASON_PASSIVE);
+			InternalClose(ECloseReason::Passive);
 			return;
 		}
 		if (header_ > RECV_BUFFER_SIZE) {
-			InternalClose(CLOSEREASON_ACTIVE); //todo: more detail
+			InternalClose(ECloseReason::Active); //todo: more detail
 			return;
 		}
 
@@ -75,7 +81,7 @@ private:
 	}
 	void OnRecvBody(const boost::system::error_code& error, size_t bytes_transferred) {
 		if (error || bytes_transferred == 0) {
-			InternalClose(CLOSEREASON_PASSIVE);
+			InternalClose(ECloseReason::Passive);
 			return;
 		}
     OnRecv(recv_buffer_, bytes_transferred);
@@ -89,10 +95,42 @@ private:
     OnClosed(reason);
 	}
 
+  void LaunchAsyncWrite() {
+    assert(!sending_);
+    if (sending_)
+      return;
+    if (pending_buffer_->GetDataSize() <= 0)
+      return;
+
+    swap(sending_buffer_, pending_buffer_);
+    boost::asio::async_write(*socket_,
+                      boost::asio::buffer(sending_buffer_->GetDataPtr(), sending_buffer_->GetDataSize()),
+                      boost::bind(&TcpConnection::AsyncSendHandler, shared_from_this(), _1, _2));
+    sending_ = true;
+  }
+  void AsyncSendHandler(const boost::system::error_code& ec, std::size_t bytes_transferred) {
+    sending_ = false;
+    if (ec) {
+      InternalClose(ECloseReason::ErrorInSend);
+      return;
+    }
+
+    sending_buffer_->Clear();
+    if (pending_buffer_->GetDataSize() > 0) {
+      LaunchAsyncWrite();
+    }
+  }
+
 private:
   shared_ptr<tcp::socket> socket_;
 	uint32_t header_;
 	uint8_t recv_buffer_[RECV_BUFFER_SIZE];
 	bool closed_;
+
+  bool sending_;
+  DynamicBuffer send_buffer_[2];
+  DynamicBuffer* sending_buffer_;
+  DynamicBuffer* pending_buffer_;
+
 };
 

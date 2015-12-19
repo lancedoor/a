@@ -22,10 +22,10 @@ protected:
   }
 private:
   void OnPacket_SC_LoginResult(shared_ptr<::google::protobuf::Message> _packet) {
-    auto packet = dynamic_pointer_cast<Packet::SC_SomeoneSay>(_packet);
+    auto packet = dynamic_pointer_cast<Packet::SC_LoginResult>(_packet);
     if (!packet)
       return;
-    cout << packet->name() + ": " + packet->text() + "\n";
+    cout << packet->name() + ", " + packet->welcome() + "\n";
   }
   void OnPacket_SC_SomeoneSay(shared_ptr<::google::protobuf::Message> _packet) {
     auto packet = dynamic_pointer_cast<Packet::SC_SomeoneSay>(_packet);
