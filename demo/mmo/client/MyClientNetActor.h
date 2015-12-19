@@ -18,7 +18,7 @@ protected:
     ClientFrame::Get()->SendPacket(packet);
   }
   virtual void OnClosed(int32_t reason) {
-    cout << "MyClientNetActor::OnClosed\n";
+    cout << "MyClientNetActor::OnClosed(" + to_string(reason) + ")\n";
   }
 private:
   void OnPacket_SC_LoginResult(shared_ptr<::google::protobuf::Message> _packet) {

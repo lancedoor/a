@@ -81,7 +81,7 @@ private:
 	}
 	void OnRecvHeader(const boost::system::error_code& error, size_t bytes_transferred) {
 		if (error || bytes_transferred == 0) {
-			InternalClose(ECloseReason::Passive);
+			InternalClose(ECloseReason::ErrorInRecv);
 			return;
 		}
 
@@ -100,13 +100,16 @@ private:
 	}
 	void OnRecvBody(const boost::system::error_code& error, size_t bytes_transferred) {
 		if (error || bytes_transferred == 0) {
-			InternalClose(ECloseReason::Passive);
+			InternalClose(ECloseReason::ErrorInRecv);
 			return;
 		}
     OnRecv(recv_buffer_.GetBufPtr(), bytes_transferred);
 		RecvHeader();
 	}
 	void InternalClose(int32_t reason) {
+    if (closed_)
+      return;
+
 		socket_->shutdown(tcp::socket::shutdown_both);
 		socket_->close();
 
