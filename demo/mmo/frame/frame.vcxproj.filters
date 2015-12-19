@@ -120,6 +120,9 @@
     <ClInclude Include="Util\IdPtrMap.h">
       <Filter>Source Files\Util</Filter>
     </ClInclude>
+    <ClInclude Include="Net\SendBuffer.h">
+      <Filter>Source Files\Net</Filter>
+    </ClInclude>
     <ClInclude Include="Net\DynamicBuffer.h">
       <Filter>Source Files\Net</Filter>
     </ClInclude>

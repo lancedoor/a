@@ -159,8 +159,9 @@
     <ClInclude Include="NetActor\NetThreadMsg.h" />
     <ClInclude Include="NetActor\TcpClientThread.h" />
     <ClInclude Include="NetActor\TcpServerThread.h" />
-    <ClInclude Include="Net\PacketType.h" />
     <ClInclude Include="Net\DynamicBuffer.h" />
+    <ClInclude Include="Net\PacketType.h" />
+    <ClInclude Include="Net\SendBuffer.h" />
     <ClInclude Include="Net\TcpAcceptor.h" />
     <ClInclude Include="Net\TcpClient.h" />
     <ClInclude Include="Net\TcpConnection.h" />

@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include "DynamicBuffer.h"
+#include "SendBuffer.h"
 
 using boost::asio::ip::tcp;
 class TcpConnection : public enable_shared_from_this<TcpConnection>
@@ -13,20 +14,29 @@ public:
 		Active,
 		Passive,
 		Timeout,
+    RecvBufferRunOut,
+    ErrorInRecv,
+    SendBufferRunOut,
     ErrorInSend,
 
 		_Max
 	};
 	enum {
-		RECV_BUFFER_SIZE = 1024,
-	};
+    kMinRecvBuffer = 4 * 1024,
+    kMaxRecvBuffer = 8 * 1024 * 1024,
+    kMinSendBuffer = 4 * 1024,
+    kMaxSendBuffer = 8 * 1024 * 1024,
+  };
 public:
   TcpConnection(shared_ptr<tcp::socket> _socket)
-    : socket_(_socket)
-    , closed_(false) {
+  : socket_(_socket)
+  , closed_(false)
+  , recv_buffer_(kMinRecvBuffer, kMaxRecvBuffer)
+  , send_buffer_a_(kMinSendBuffer, kMaxSendBuffer)
+  , send_buffer_b_(kMinSendBuffer, kMaxSendBuffer) {
     sending_ = false;
-    sending_buffer_ = &send_buffer_[0];
-    pending_buffer_ = &send_buffer_[1];
+    sending_buffer_ = &send_buffer_a_;
+    pending_buffer_ = &send_buffer_b_;
   }
 	~TcpConnection() {
 
@@ -38,8 +48,15 @@ public:
     if (closed_)
       return;
 
-    pending_buffer_->Append((uint8_t*)&size, sizeof(size));
-    pending_buffer_->Append(data.get(), size);
+    if (!pending_buffer_->Append((uint8_t*)&size, sizeof(size))) {
+      InternalClose(ECloseReason::SendBufferRunOut);
+      return;
+    }
+    if (!pending_buffer_->Append(data.get(), size)) {
+      InternalClose(ECloseReason::SendBufferRunOut);
+      return;
+    }
+      
     if (!sending_)
       LaunchAsyncWrite();
   }
@@ -67,13 +84,15 @@ private:
 			InternalClose(ECloseReason::Passive);
 			return;
 		}
-		if (header_ > RECV_BUFFER_SIZE) {
-			InternalClose(ECloseReason::Active); //todo: more detail
-			return;
-		}
+
+    if (!recv_buffer_.MakeRoom(header_, 0)) {
+      InternalClose(ECloseReason::RecvBufferRunOut);
+      return;
+    }
+    recv_buffer_.SaveRoom(header_, 0);
 
 		boost::asio::async_read(*socket_,
-			boost::asio::buffer(recv_buffer_, header_),
+			boost::asio::buffer(recv_buffer_.GetBufPtr(), header_),
 			boost::bind(&TcpConnection::OnRecvBody, shared_from_this(),
 				boost::asio::placeholders::error,
 				boost::asio::placeholders::bytes_transferred)
@@ -84,7 +103,7 @@ private:
 			InternalClose(ECloseReason::Passive);
 			return;
 		}
-    OnRecv(recv_buffer_, bytes_transferred);
+    OnRecv(recv_buffer_.GetBufPtr(), bytes_transferred);
 		RecvHeader();
 	}
 	void InternalClose(int32_t reason) {
@@ -104,12 +123,14 @@ private:
 
     swap(sending_buffer_, pending_buffer_);
     boost::asio::async_write(*socket_,
-                      boost::asio::buffer(sending_buffer_->GetDataPtr(), sending_buffer_->GetDataSize()),
+                      boost::asio::buffer(sending_buffer_->GetBufPtr(), sending_buffer_->GetDataSize()),
                       boost::bind(&TcpConnection::AsyncSendHandler, shared_from_this(), _1, _2));
     sending_ = true;
   }
   void AsyncSendHandler(const boost::system::error_code& ec, std::size_t bytes_transferred) {
     sending_ = false;
+    if (closed_)
+      return;
     if (ec) {
       InternalClose(ECloseReason::ErrorInSend);
       return;
@@ -124,13 +145,15 @@ private:
 private:
   shared_ptr<tcp::socket> socket_;
 	uint32_t header_;
-	uint8_t recv_buffer_[RECV_BUFFER_SIZE];
+  DynamicBuffer recv_buffer_;
+
 	bool closed_;
 
   bool sending_;
-  DynamicBuffer send_buffer_[2];
-  DynamicBuffer* sending_buffer_;
-  DynamicBuffer* pending_buffer_;
+  SendBuffer send_buffer_a_;
+  SendBuffer send_buffer_b_;
+  SendBuffer* sending_buffer_;
+  SendBuffer* pending_buffer_;
 
 };
 

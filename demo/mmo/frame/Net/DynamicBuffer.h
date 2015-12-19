@@ -1,64 +1,52 @@
 #pragma once
 
 class DynamicBuffer {
-  enum {
-    kMinCapacity = 4 * 1024,
-    kMaxCapacity = 8 * 1024 * 1024,
-  };
 public:
-  DynamicBuffer() {
-    data_ptr_ = nullptr;
-    data_capacity_ = 0;
-    data_size_ = 0;
-    ResizeCapacity(kMinCapacity);
+  DynamicBuffer(int32_t min_size, int32_t max_size) {
+    min_size_ = min_size;
+    max_size_ = max_size;
+    buf_size_ = min_size;
+    buf_ptr_ = shared_ptr<uint8_t>(new uint8_t[buf_size_]);
   }
-  uint8_t* GetDataPtr() {
-    return data_ptr_.get();
-  }
-  int32_t GetDataSize() {
-    return data_size_;
+  uint8_t* GetBufPtr() {
+    return buf_ptr_.get();
   }
 
-  bool Append(uint8_t *ptr, int32_t size) {
-    int32_t expect_size = size + data_size_;
-    if (expect_size > kMaxCapacity)
+  bool MakeRoom(int32_t required_size, int32_t copy_size) {
+    if (required_size > max_size_)
       return false;
-    if (expect_size > data_capacity_) {
-      int32_t new_capacity = data_capacity_;
-      while (expect_size > new_capacity)
-        new_capacity *= 2;
-      ResizeCapacity(new_capacity);
+    if (required_size > buf_size_) {
+      int32_t new_buf_size = buf_size_ * 2;
+      while (new_buf_size < required_size)
+        new_buf_size *= 2;
+      Resize(new_buf_size, copy_size);
     }
-
-    memcpy(data_ptr_.get() + data_size_, ptr, size);
-    data_size_ += size;
     return true;
   }
-  void Clear() {
-    int32_t old_data_size = data_size_;
-    data_size_ = 0;
-    if (old_data_size < data_capacity_ / 4 && data_capacity_ / 2 >= kMinCapacity) {
-      ResizeCapacity(data_capacity_ / 2);
+  void SaveRoom(int32_t required_size, int32_t copy_size) {
+    if (required_size < buf_size_ / 4 && buf_size_ / 2 >= min_size_) {
+      Resize(buf_size_ / 2, copy_size);
     }
   }
 
 private:
-  void ResizeCapacity(int32_t new_capacity) {
-    assert(new_capacity >= kMinCapacity && new_capacity <= kMaxCapacity);
-    assert(new_capacity >= data_size_);
-    if (new_capacity < data_size_)
+  void Resize(int32_t buf_size, int32_t copy_size) {
+    assert(buf_size >= copy_size);
+    assert(buf_size >= min_size_ && buf_size <= max_size_);
+    if (buf_size < min_size_ || buf_size > max_size_)
       return;
-    if (new_capacity == data_capacity_)
+    if (buf_size == buf_size_)
       return;
 
-    auto new_ptr = shared_ptr<uint8_t>(new uint8_t[new_capacity]);
-    if (data_ptr_ && data_size_ > 0)
-      memcpy(new_ptr.get(), data_ptr_.get(), min(data_size_, new_capacity));
-    data_ptr_ = new_ptr;
-    data_capacity_ = new_capacity;
+    auto new_ptr = shared_ptr<uint8_t>(new uint8_t[buf_size]);
+    if (buf_ptr_ && copy_size > 0)
+      memcpy(new_ptr.get(), buf_ptr_.get(), min(copy_size, buf_size));
+    buf_ptr_ = new_ptr;
+    buf_size_ = buf_size;
   }
 private:
-  shared_ptr<uint8_t> data_ptr_;
-  int32_t data_capacity_;
-  int32_t data_size_;
+  int32_t min_size_;
+  int32_t max_size_;
+  shared_ptr<uint8_t> buf_ptr_;
+  int32_t buf_size_;
 };
