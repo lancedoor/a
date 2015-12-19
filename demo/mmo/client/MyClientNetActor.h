@@ -3,10 +3,6 @@
 
 class MyClientNetActor : public ClientNetActor {
 public:
-  MyClientNetActor() {
-    //RegisterPacketHandler<Packet::SC_LoginResult>(boost::bind(&MyClientNetActor::OnPacket_SC_LoginResult, enable_shared_from_this<MyClientNetActor>::shared_from_this(), _1));
-    //RegisterPacketHandler<Packet::SC_SomeoneSay>(boost::bind(&MyClientNetActor::OnPacket_SC_SomeoneSay, enable_shared_from_this<MyClientNetActor>::shared_from_this(), _1));
-  }
   virtual void Init() {
     ClientNetActor::Init();
     REGISTER_PACKET_HANDLER(MyClientNetActor, Packet::SC_LoginResult, OnPacket_SC_LoginResult);

@@ -8,11 +8,6 @@
 class ConnectionActor : public Actor {
   typedef boost::function<void(shared_ptr<::google::protobuf::Message>)> PacketHandler;
 public:
-  ConnectionActor() {
-    //RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_connected"), boost::bind(&ConnectionActor::OnMsg_Connected, enable_shared_from_this<ConnectionActor>::shared_from_this(), _1, _2));
-    //RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_packet"), boost::bind(&ConnectionActor::OnMsg_Packet, enable_shared_from_this<ConnectionActor>::shared_from_this(), _1, _2));
-    //RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_closed"), boost::bind(&ConnectionActor::OnMsg_Closed, enable_shared_from_this<ConnectionActor>::shared_from_this(), _1, _2));
-  }
   virtual void Init() {
     Actor::Init();
     REGISTER_MSG_HANDLER(ConnectionActor, NamedMsgId::Get()->GetMsgId("core::net::on_connected"), OnMsg_Connected);

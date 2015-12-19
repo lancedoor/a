@@ -8,9 +8,6 @@
 class ClientNetActor : public ConnectionActor {
   typedef boost::function<void(shared_ptr<::google::protobuf::Message>)> PacketHandler;
 public:
-  ClientNetActor() {
-    //RegisterMsgHandler(NamedMsgId::Get()->GetMsgId("core::net::on_connect_failed"), boost::bind(&ClientNetActor::OnMsg_ConnectFailed, enable_shared_from_this<ClientNetActor>::shared_from_this(), _1, _2));
-  }
   virtual void Init() {
     ConnectionActor::Init();
     REGISTER_MSG_HANDLER(ClientNetActor, NamedMsgId::Get()->GetMsgId("core::net::on_connect_failed"), OnMsg_ConnectFailed);

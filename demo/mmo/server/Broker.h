@@ -5,10 +5,6 @@
 
 class Broker : public ConnectionActor {
 public:
-	Broker() {
-    //RegisterPacketHandler<Packet::CS_Login>(boost::bind(&Broker::OnPacket_CS_Login, this, _1));
-    //RegisterPacketHandler<Packet::CS_Say>(boost::bind(&Broker::OnPacket_CS_Say, this, _1));
-	}
   virtual void Init() {
     ConnectionActor::Init();
     REGISTER_PACKET_HANDLER(Broker, Packet::CS_Login, OnPacket_CS_Login);
