@@ -1,1 +1,1 @@
-![design](/lancedoor/a/blob/master/demo/mmo/doc/%E8%AE%BE%E8%AE%A1%E5%9B%BE.png)
+![design](/lancedoor/a/raw/master/demo/mmo/doc/%E8%AE%BE%E8%AE%A1%E5%9B%BE.png)
